@@ -203,11 +203,12 @@ STATIC int do_repl(void) {
         for (;;) {
             ret = readline_select( &line, "~~> ", ret);
             //fail
-            if (ret==-2){
-                mp_hal_stdout_tx_str("\r\nERROR\r\n");
+            if (ret==-2) {
+                mp_hal_stdout_tx_str("stdin select error\n");
+                //maybe resume with normal readline
                 ret = readline(&line, ">>> ");
             }
-            if (ret==-1){
+            if (ret==-1) {
                 //mp_hal_stdio_mode_orig(); 
                 execute_from_lexer( LEX_SRC_STR, sched_ptr, parse_input_kind, false);
                 //mp_hal_stdio_mode_raw();
@@ -217,7 +218,6 @@ STATIC int do_repl(void) {
             if (ret>=0) {
                 break;
             }
-
         }
         #else        
         int ret = readline(&line, ">>> ");
