@@ -194,7 +194,7 @@ STATIC int do_repl(void) {
         vstr_reset(&line);
         
         #if MICROPY_UNIXSCHEDULE
-        const char sched[] = "getattr( __import__('__main__'),'scheduler',None) and scheduler()";
+        const char sched[] = "__module__ = __import__('sys').modules.get('micropython',None);__module__ and __module__.scheduler()";
         const char *sched_ptr = &sched[0];
         mp_parse_input_kind_t parse_input_kind = MP_PARSE_SINGLE_INPUT;
         // req prompt first pass
