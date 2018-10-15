@@ -436,12 +436,13 @@ fd_set rfds;
 struct timeval tv;
 
 int readline_select(vstr_t *line, const char *prompt, int resuming) {
-    if (resuming== -3){
+    if (resuming== -3)
         readline_init(line, prompt);
-        tv.tv_sec = 0;
-        tv.tv_usec = 16;
-    }
+    
     for (;;) {
+        // On Linux, select() modifies timeout to reflect the amount of time not slept
+        tv.tv_sec = 0;
+        tv.tv_usec = 16;        
         FD_ZERO(&rfds);
         FD_SET(STDIN_FILENO, &rfds);
         int rv=select(STDIN_FILENO+1, &rfds, NULL, NULL, &tv);
