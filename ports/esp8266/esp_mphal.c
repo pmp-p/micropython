@@ -68,7 +68,14 @@ int mp_hal_stdin_rx_chr(void) {
             asm("waiti 0");
         }
         #else
-        mp_hal_delay_us(1);
+        //222 2 80  GOOD ! 0% packet loss
+        //264 2 66  GOOD ! 24/1425 packets lost 
+        //272 2 64 FAIL sometimes.
+
+        for (int at_least=0;at_least<66;at_least++)
+            ets_loop_iter();
+
+        mp_handle_pending();
         #endif
     }
 }
