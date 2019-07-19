@@ -112,6 +112,9 @@
         *emit->error_slot = mp_obj_new_exception_msg_varg(&mp_type_ViperTypeError, __VA_ARGS__); \
     } while (0)
 
+#define JUMP_EXC(emit) ASM_JUMP((emit)->as, (emit)->exit_label + 3);
+#define CHECK_EXC(emit) ASM_JUMP_IF_REG_ZERO((emit)->as, REG_RET, (emit)->exit_label + 3, false)
+
 typedef enum {
     STACK_VALUE,
     STACK_REG,
@@ -518,6 +521,8 @@ STATIC void emit_native_start_pass(emit_t *emit, pass_kind_t pass, scope_t *scop
             #else
             ASM_CALL_IND(emit->as, MP_F_SETUP_CODE_STATE);
             #endif
+            // Jump to ASM_EXIT if exception (MP_OBJ_NULL returned)
+            ASM_JUMP_IF_REG_ZERO(emit->as, REG_RET, *emit->label_slot + 4, false);
         }
 
         emit_native_global_exc_entry(emit);
@@ -923,6 +928,7 @@ STATIC void emit_call_with_qstr_arg(emit_t *emit, mp_fun_kind_t fun_kind, qstr q
     need_reg_all(emit);
     emit_native_mov_reg_qstr(emit, arg_reg, qst);
     ASM_CALL_IND(emit->as, fun_kind);
+    CHECK_EXC(emit);
 }
 
 // vtype of all n_pop objects is VTYPE_PYOBJ
@@ -1101,15 +1107,8 @@ STATIC void emit_native_global_exc_entry(emit_t *emit) {
         }
 
         if (emit->scope->exc_stack_size == 0) {
-            if (!(emit->scope->scope_flags & MP_SCOPE_FLAG_GENERATOR)) {
-                // Optimisation: if globals didn't change don't push the nlr context
-                ASM_JUMP_IF_REG_ZERO(emit->as, REG_RET, start_label, false);
-            }
-
-            // Wrap everything in an nlr context
-            ASM_MOV_REG_LOCAL_ADDR(emit->as, REG_ARG_1, 0);
-            emit_call(emit, MP_F_NLR_PUSH);
-            ASM_JUMP_IF_REG_ZERO(emit->as, REG_RET, start_label, true);
+            ASM_JUMP(emit->as, start_label);
+            emit_native_label_assign(emit, global_except_label);
         } else {
             // Clear the unwind state
             ASM_XOR_REG_REG(emit->as, REG_TEMP0, REG_TEMP0);
@@ -1120,11 +1119,7 @@ STATIC void emit_native_global_exc_entry(emit_t *emit) {
 
             // Wrap everything in an nlr context
             emit_native_label_assign(emit, nlr_label);
-            ASM_MOV_REG_LOCAL(emit->as, REG_LOCAL_2, LOCAL_IDX_EXC_HANDLER_UNWIND(emit));
-            ASM_MOV_REG_LOCAL_ADDR(emit->as, REG_ARG_1, 0);
-            emit_call(emit, MP_F_NLR_PUSH);
-            ASM_MOV_LOCAL_REG(emit->as, LOCAL_IDX_EXC_HANDLER_UNWIND(emit), REG_LOCAL_2);
-            ASM_JUMP_IF_REG_NONZERO(emit->as, REG_RET, global_except_label, true);
+            emit_call(emit, MP_F_NATIVE_CLR_EXC); // clear cur_exc because we are handling it (may need to re-raise it later)
 
             // Clear PC of current code block, and jump there to resume execution
             ASM_XOR_REG_REG(emit->as, REG_TEMP0, REG_TEMP0);
@@ -1133,29 +1128,23 @@ STATIC void emit_native_global_exc_entry(emit_t *emit) {
 
             // Global exception handler: check for valid exception handler
             emit_native_label_assign(emit, global_except_label);
+            emit_call(emit, MP_F_NATIVE_GET_EXC);
+            ASM_MOV_LOCAL_REG(emit->as, LOCAL_IDX_EXC_VAL(emit), REG_RET); // get cur_exc and store it locally; TODO could perhaps change this so we load it on demand
             ASM_MOV_REG_LOCAL(emit->as, REG_LOCAL_1, LOCAL_IDX_EXC_HANDLER_PC(emit));
             ASM_JUMP_IF_REG_NONZERO(emit->as, REG_LOCAL_1, nlr_label, false);
         }
 
-        if (!(emit->scope->scope_flags & MP_SCOPE_FLAG_GENERATOR)) {
-            // Restore old globals
-            emit_native_mov_reg_state(emit, REG_ARG_1, LOCAL_IDX_OLD_GLOBALS(emit));
-            emit_call(emit, MP_F_NATIVE_SWAP_GLOBALS);
-        }
-
         if (emit->scope->scope_flags & MP_SCOPE_FLAG_GENERATOR) {
-            // Store return value in state[0]
-            ASM_MOV_REG_LOCAL(emit->as, REG_TEMP0, LOCAL_IDX_EXC_VAL(emit));
-            ASM_STORE_REG_REG_OFFSET(emit->as, REG_TEMP0, REG_GENERATOR_STATE, offsetof(mp_code_state_t, state) / sizeof(uintptr_t));
-
             // Load return kind
             ASM_MOV_REG_IMM(emit->as, REG_RET, MP_VM_RETURN_EXCEPTION);
 
+            // TODO optimise with a jump to last ASM_EXIT?
             ASM_EXIT(emit->as);
         } else {
             // Re-raise exception out to caller
-            ASM_MOV_REG_LOCAL(emit->as, REG_ARG_1, LOCAL_IDX_EXC_VAL(emit));
-            emit_call(emit, MP_F_NATIVE_RAISE);
+            ASM_MOV_REG_IMM(emit->as, REG_RET, (mp_uint_t)MP_OBJ_NULL);
+            ASM_MOV_LOCAL_REG(emit->as, LOCAL_IDX_RET_VAL(emit), REG_RET);
+            ASM_JUMP(emit->as, emit->exit_label);
         }
 
         // Label for start of function
@@ -1170,7 +1159,8 @@ STATIC void emit_native_global_exc_entry(emit_t *emit) {
 
             // Check LOCAL_IDX_EXC_VAL for any injected value
             ASM_MOV_REG_LOCAL(emit->as, REG_ARG_1, LOCAL_IDX_EXC_VAL(emit));
-            emit_call(emit, MP_F_NATIVE_RAISE);
+            emit_call(emit, MP_F_NATIVE_RAISE); // returns MP_OBJ_NULL if there's something to raise
+            CHECK_EXC(emit);
         }
     }
 }
@@ -1185,18 +1175,13 @@ STATIC void emit_native_global_exc_exit(emit_t *emit) {
             emit_native_mov_reg_state(emit, REG_ARG_1, LOCAL_IDX_OLD_GLOBALS(emit));
 
             if (emit->scope->exc_stack_size == 0) {
-                // Optimisation: if globals didn't change then don't restore them and don't do nlr_pop
+                // Optimisation: if globals didn't change then don't restore them
                 ASM_JUMP_IF_REG_ZERO(emit->as, REG_ARG_1, emit->exit_label + 1, false);
             }
 
             // Restore old globals
             emit_call(emit, MP_F_NATIVE_SWAP_GLOBALS);
-        }
 
-        // Pop the nlr context
-        emit_call(emit, MP_F_NLR_POP);
-
-        if (!(emit->scope->scope_flags & MP_SCOPE_FLAG_GENERATOR)) {
             if (emit->scope->exc_stack_size == 0) {
                 // Destination label for above optimisation
                 emit_native_label_assign(emit, emit->exit_label + 1);
@@ -1205,6 +1190,17 @@ STATIC void emit_native_global_exc_exit(emit_t *emit) {
 
         // Load return value
         ASM_MOV_REG_LOCAL(emit->as, REG_RET, LOCAL_IDX_RET_VAL(emit));
+    } else {
+        // Without a global except handler there may still be exceptions but there is
+        // no special handling needed, just exit with REG_RET=MP_OBJ_NULL, which must
+        // be the case for all jumps that end up here.
+        mp_uint_t global_except_label = emit->exit_label + 3;
+        emit_native_label_assign(emit, global_except_label);
+    }
+
+    if (!emit->do_viper_types) {
+        // Add a label for ASM_EXIT to reduce generated code size (only used for non-viper)
+        emit_native_label_assign(emit, emit->exit_label + 4);
     }
 
     ASM_EXIT(emit->as);
@@ -1422,6 +1418,7 @@ STATIC void emit_native_load_subscr(emit_t *emit) {
         }
         emit_pre_pop_reg(emit, &vtype_base, REG_ARG_1);
         emit_call_with_imm_arg(emit, MP_F_OBJ_SUBSCR, (mp_uint_t)MP_OBJ_SENTINEL, REG_ARG_3);
+        CHECK_EXC(emit);
         emit_post_push_reg(emit, VTYPE_PYOBJ, REG_RET);
     } else {
         // viper load
@@ -1631,6 +1628,7 @@ STATIC void emit_native_store_subscr(emit_t *emit) {
         }
         emit_pre_pop_reg_reg_reg(emit, &vtype_index, REG_ARG_2, &vtype_base, REG_ARG_1, &vtype_value, REG_ARG_3);
         emit_call(emit, MP_F_OBJ_SUBSCR);
+        CHECK_EXC(emit);
     } else {
         // viper store
         // TODO The different machine architectures have very different
@@ -1823,6 +1821,7 @@ STATIC void emit_native_delete_subscr(emit_t *emit) {
     assert(vtype_index == VTYPE_PYOBJ);
     assert(vtype_base == VTYPE_PYOBJ);
     emit_call_with_imm_arg(emit, MP_F_OBJ_SUBSCR, (mp_uint_t)MP_OBJ_NULL, REG_ARG_3);
+    CHECK_EXC(emit);
 }
 
 STATIC void emit_native_subscr(emit_t *emit, int kind) {
@@ -2006,6 +2005,7 @@ STATIC void emit_native_setup_with(emit_t *emit, mp_uint_t label) {
     // call __enter__ method
     emit_get_stack_pointer_to_reg_for_pop(emit, REG_ARG_3, 2); // pointer to items, including meth and self
     emit_call_with_2_imm_args(emit, MP_F_CALL_METHOD_N_KW, 0, REG_ARG_1, 0, REG_ARG_2);
+    CHECK_EXC(emit);
     emit_post_push_reg(emit, VTYPE_PYOBJ, REG_RET); // push return value of __enter__
     // stack: (..., __exit__, self, as_value)
 
@@ -2047,6 +2047,7 @@ STATIC void emit_native_with_cleanup(emit_t *emit, mp_uint_t label) {
     emit_post_push_imm(emit, VTYPE_PTR_NONE, 0);
     emit_get_stack_pointer_to_reg_for_pop(emit, REG_ARG_3, 5);
     emit_call_with_2_imm_args(emit, MP_F_CALL_METHOD_N_KW, 3, REG_ARG_1, 0, REG_ARG_2);
+    CHECK_EXC(emit);
 
     // Replace exc with None and finish
     emit_native_jump(emit, *emit->label_slot);
@@ -2077,6 +2078,7 @@ STATIC void emit_native_with_cleanup(emit_t *emit, mp_uint_t label) {
     // call __exit__ method
     emit_get_stack_pointer_to_reg_for_pop(emit, REG_ARG_3, 5);
     emit_call_with_2_imm_args(emit, MP_F_CALL_METHOD_N_KW, 3, REG_ARG_1, 0, REG_ARG_2);
+    // TODO write test for when the above MP_F_CALL_METHOD_N_KW fails
     // Stack: (...)
 
     // If REG_RET is true then we need to replace exception with None (swallow exception)
@@ -2095,9 +2097,13 @@ STATIC void emit_native_with_cleanup(emit_t *emit, mp_uint_t label) {
     emit_native_label_assign(emit, *emit->label_slot + 1);
 
     // Exception is in nlr_buf.ret_val slot
+
+    ASM_MOV_REG_LOCAL(emit->as, REG_ARG_1, LOCAL_IDX_EXC_VAL(emit)); // get exc
+    emit_call(emit, MP_F_NATIVE_RAISE); // re-raise (won't do anything if it's None from swallowed above)
 }
 
 STATIC void emit_native_end_finally(emit_t *emit) {
+    // TODO rewrite this comment
     // logic:
     //   exc = pop_stack
     //   if exc == None: pass
@@ -2105,7 +2111,8 @@ STATIC void emit_native_end_finally(emit_t *emit) {
     // the check if exc is None is done in the MP_F_NATIVE_RAISE stub
     emit_native_pre(emit);
     ASM_MOV_REG_LOCAL(emit->as, REG_ARG_1, LOCAL_IDX_EXC_VAL(emit));
-    emit_call(emit, MP_F_NATIVE_RAISE);
+    emit_call(emit, MP_F_NATIVE_RAISE); // returns MP_OBJ_NULL if there's something to raise
+    CHECK_EXC(emit);
 
     // Get state for this finally and see if we need to unwind
     exc_stack_entry_t *e = emit_native_pop_exc_stack(emit);
@@ -2133,10 +2140,12 @@ STATIC void emit_native_get_iter(emit_t *emit, bool use_stack) {
     if (use_stack) {
         emit_get_stack_pointer_to_reg_for_push(emit, REG_ARG_2, MP_OBJ_ITER_BUF_NSLOTS);
         emit_call(emit, MP_F_NATIVE_GETITER);
+        CHECK_EXC(emit);
     } else {
         // mp_getiter will allocate the iter_buf on the heap
         ASM_MOV_REG_IMM(emit->as, REG_ARG_2, 0);
         emit_call(emit, MP_F_NATIVE_GETITER);
+        CHECK_EXC(emit);
         emit_post_push_reg(emit, VTYPE_PYOBJ, REG_RET);
     }
 }
@@ -2146,6 +2155,7 @@ STATIC void emit_native_for_iter(emit_t *emit, mp_uint_t label) {
     emit_get_stack_pointer_to_reg_for_pop(emit, REG_ARG_1, MP_OBJ_ITER_BUF_NSLOTS);
     adjust_stack(emit, MP_OBJ_ITER_BUF_NSLOTS);
     emit_call(emit, MP_F_NATIVE_ITERNEXT);
+    CHECK_EXC(emit);
     #if MICROPY_DEBUG_MP_OBJ_SENTINELS
     ASM_MOV_REG_IMM(emit->as, REG_TEMP1, (mp_uint_t)MP_OBJ_STOP_ITERATION);
     ASM_JUMP_IF_REG_EQ(emit->as, REG_RET, REG_TEMP1, label);
@@ -2179,6 +2189,7 @@ STATIC void emit_native_unary_op(emit_t *emit, mp_unary_op_t op) {
     emit_pre_pop_reg(emit, &vtype, REG_ARG_2);
     if (vtype == VTYPE_PYOBJ) {
         emit_call_with_imm_arg(emit, MP_F_UNARY_OP, op, REG_ARG_1);
+        CHECK_EXC(emit);
         emit_post_push_reg(emit, VTYPE_PYOBJ, REG_RET);
     } else {
         adjust_stack(emit, 1);
@@ -2351,9 +2362,11 @@ STATIC void emit_native_binary_op(emit_t *emit, mp_binary_op_t op) {
             op = MP_BINARY_OP_IS;
         }
         emit_call_with_imm_arg(emit, MP_F_BINARY_OP, op, REG_ARG_1);
+        CHECK_EXC(emit);
         if (invert) {
             ASM_MOV_REG_REG(emit->as, REG_ARG_2, REG_RET);
             emit_call_with_imm_arg(emit, MP_F_UNARY_OP, MP_UNARY_OP_NOT, REG_ARG_1);
+            CHECK_EXC(emit);
         }
         emit_post_push_reg(emit, VTYPE_PYOBJ, REG_RET);
     } else {
@@ -2386,6 +2399,7 @@ STATIC void emit_native_build(emit_t *emit, mp_uint_t n_args, int kind) {
         emit_get_stack_pointer_to_reg_for_pop(emit, REG_ARG_2, n_args); // pointer to items
     }
     emit_call_with_imm_arg(emit, MP_F_BUILD_TUPLE + kind, n_args, REG_ARG_1);
+    CHECK_EXC(emit);
     emit_post_push_reg(emit, VTYPE_PYOBJ, REG_RET); // new tuple/list/map/set
 }
 
@@ -2396,6 +2410,7 @@ STATIC void emit_native_store_map(emit_t *emit) {
     assert(vtype_value == VTYPE_PYOBJ);
     assert(vtype_map == VTYPE_PYOBJ);
     emit_call(emit, MP_F_STORE_MAP);
+    CHECK_EXC(emit);
     emit_post_push_reg(emit, VTYPE_PYOBJ, REG_RET); // map
 }
 
@@ -2417,6 +2432,7 @@ STATIC void emit_native_build_slice(emit_t *emit, mp_uint_t n_args) {
         assert(vtype_step == VTYPE_PYOBJ);
     }
     emit_call(emit, MP_F_NEW_SLICE);
+    CHECK_EXC(emit);
     emit_post_push_reg(emit, VTYPE_PYOBJ, REG_RET);
 }
 #endif
@@ -2447,6 +2463,7 @@ STATIC void emit_native_store_comp(emit_t *emit, scope_kind_t kind, mp_uint_t co
     emit_access_stack(emit, collection_index, &vtype_collection, REG_ARG_1);
     assert(vtype_collection == VTYPE_PYOBJ);
     emit_call(emit, f);
+    // TODO write test for failure here
     emit_post(emit);
 }
 
@@ -2457,6 +2474,7 @@ STATIC void emit_native_unpack_sequence(emit_t *emit, mp_uint_t n_args) {
     assert(vtype_base == VTYPE_PYOBJ);
     emit_get_stack_pointer_to_reg_for_push(emit, REG_ARG_3, n_args); // arg3 = dest ptr
     emit_call_with_imm_arg(emit, MP_F_UNPACK_SEQUENCE, n_args, REG_ARG_2); // arg2 = n_args
+    CHECK_EXC(emit);
 }
 
 STATIC void emit_native_unpack_ex(emit_t *emit, mp_uint_t n_left, mp_uint_t n_right) {
@@ -2466,6 +2484,7 @@ STATIC void emit_native_unpack_ex(emit_t *emit, mp_uint_t n_left, mp_uint_t n_ri
     assert(vtype_base == VTYPE_PYOBJ);
     emit_get_stack_pointer_to_reg_for_push(emit, REG_ARG_3, n_left + n_right + 1); // arg3 = dest ptr
     emit_call_with_imm_arg(emit, MP_F_UNPACK_EX, n_left | (n_right << 8), REG_ARG_2); // arg2 = n_left + n_right
+    CHECK_EXC(emit);
 }
 
 STATIC void emit_native_make_function(emit_t *emit, scope_t *scope, mp_uint_t n_pos_defaults, mp_uint_t n_kw_defaults) {
@@ -2546,6 +2565,7 @@ STATIC void emit_native_call_function(emit_t *emit, mp_uint_t n_positional, mp_u
         if (star_flags) {
             emit_get_stack_pointer_to_reg_for_pop(emit, REG_ARG_3, n_positional + 2 * n_keyword + 3); // pointer to args
             emit_call_with_2_imm_args(emit, MP_F_CALL_METHOD_N_KW_VAR, 0, REG_ARG_1, n_positional | (n_keyword << 8), REG_ARG_2);
+            CHECK_EXC(emit);
             emit_post_push_reg(emit, VTYPE_PYOBJ, REG_RET);
         } else {
             if (n_positional != 0 || n_keyword != 0) {
@@ -2553,6 +2573,7 @@ STATIC void emit_native_call_function(emit_t *emit, mp_uint_t n_positional, mp_u
             }
             emit_pre_pop_reg(emit, &vtype_fun, REG_ARG_1); // the function
             emit_call_with_imm_arg(emit, MP_F_NATIVE_CALL_FUNCTION_N_KW, n_positional | (n_keyword << 8), REG_ARG_2);
+            CHECK_EXC(emit);
             emit_post_push_reg(emit, VTYPE_PYOBJ, REG_RET);
         }
     }
@@ -2562,11 +2583,13 @@ STATIC void emit_native_call_method(emit_t *emit, mp_uint_t n_positional, mp_uin
     if (star_flags) {
         emit_get_stack_pointer_to_reg_for_pop(emit, REG_ARG_3, n_positional + 2 * n_keyword + 4); // pointer to args
         emit_call_with_2_imm_args(emit, MP_F_CALL_METHOD_N_KW_VAR, 1, REG_ARG_1, n_positional | (n_keyword << 8), REG_ARG_2);
+        CHECK_EXC(emit);
         emit_post_push_reg(emit, VTYPE_PYOBJ, REG_RET);
     } else {
         emit_native_pre(emit);
         emit_get_stack_pointer_to_reg_for_pop(emit, REG_ARG_3, 2 + n_positional + 2 * n_keyword); // pointer to items, including meth and self
         emit_call_with_2_imm_args(emit, MP_F_CALL_METHOD_N_KW, n_positional, REG_ARG_1, n_keyword, REG_ARG_2);
+        CHECK_EXC(emit);
         emit_post_push_reg(emit, VTYPE_PYOBJ, REG_RET);
     }
 }
@@ -2632,7 +2655,8 @@ STATIC void emit_native_raise_varargs(emit_t *emit, mp_uint_t n_args) {
         EMIT_NATIVE_VIPER_TYPE_ERROR(emit, "must raise an object");
     }
     // TODO probably make this 1 call to the runtime (which could even call convert, native_raise(obj, type))
-    emit_call(emit, MP_F_NATIVE_RAISE);
+    emit_call(emit, MP_F_NATIVE_RAISE); // returns MP_OBJ_NULL if there's something to raise
+    JUMP_EXC(emit);
 }
 
 STATIC void emit_native_yield(emit_t *emit, int kind) {
@@ -2694,7 +2718,8 @@ STATIC void emit_native_yield(emit_t *emit, int kind) {
     if (kind == MP_EMIT_YIELD_VALUE) {
         // Check LOCAL_IDX_EXC_VAL for any injected value
         ASM_MOV_REG_LOCAL(emit->as, REG_ARG_1, LOCAL_IDX_EXC_VAL(emit));
-        emit_call(emit, MP_F_NATIVE_RAISE);
+        emit_call(emit, MP_F_NATIVE_RAISE); // returns MP_OBJ_NULL if there's something to raise
+        CHECK_EXC(emit);
     } else {
         // Label loop entry
         emit_native_label_assign(emit, *emit->label_slot + 2);
@@ -2710,6 +2735,11 @@ STATIC void emit_native_yield(emit_t *emit, int kind) {
 
         // If returned non-zero then generator continues
         ASM_JUMP_IF_REG_NONZERO(emit->as, REG_RET, *emit->label_slot + 1, true);
+
+        // Check if native yield from raised an exception
+        // TODO could improve by having three options for return value of native yield from
+        emit_call(emit, MP_F_NATIVE_IS_EXC); // returns MP_OBJ_NULL if there's something to raise
+        CHECK_EXC(emit);
 
         // Pop exhausted gen, replace with ret_value
         emit_native_adjust_stack_size(emit, 1); // ret_value
