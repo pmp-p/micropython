@@ -1349,11 +1349,17 @@ yield:
                         DISPATCH();
                     } else if (ip[-1] < MP_BC_UNARY_OP_MULTI + MP_UNARY_OP_NUM_BYTECODE) {
                         SET_TOP(mp_unary_op(ip[-1] - MP_BC_UNARY_OP_MULTI, TOP()));
+                        if (TOP() == MP_OBJ_NULL) {
+                            RAISE_IT();
+                        }
                         DISPATCH();
                     } else if (ip[-1] < MP_BC_BINARY_OP_MULTI + MP_BINARY_OP_NUM_BYTECODE) {
                         mp_obj_t rhs = POP();
                         mp_obj_t lhs = TOP();
                         SET_TOP(mp_binary_op(ip[-1] - MP_BC_BINARY_OP_MULTI, lhs, rhs));
+                        if (TOP() == MP_OBJ_NULL) {
+                            RAISE_IT();
+                        }
                         DISPATCH();
                     } else
 #endif
