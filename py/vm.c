@@ -984,6 +984,7 @@ unwind_jump:;
                             #if MICROPY_STACKLESS_STRICT
                         deep_recursion_error:
                             mp_raise_recursion_depth();
+                            RAISE_IT();
                             #endif
                         } else
                         #endif
@@ -1016,7 +1017,9 @@ unwind_jump:;
                         code_state->exc_sp = MP_TAGPTR_MAKE(exc_sp, 0);
 
                         mp_call_args_t out_args;
-                        mp_call_prepare_args_n_kw_var(false, unum, sp, &out_args);
+                        if (mp_call_prepare_args_n_kw_var(false, unum, sp, &out_args)) {
+                            RAISE_IT();
+                        }
 
                         mp_code_state_t *new_state = mp_obj_fun_bc_prepare_codestate(out_args.fun,
                             out_args.n_args, out_args.n_kw, out_args.args);
@@ -1103,7 +1106,9 @@ unwind_jump:;
                         code_state->exc_sp = MP_TAGPTR_MAKE(exc_sp, 0);
 
                         mp_call_args_t out_args;
-                        mp_call_prepare_args_n_kw_var(true, unum, sp, &out_args);
+                        if (mp_call_prepare_args_n_kw_var(true, unum, sp, &out_args)) {
+                            RAISE_IT();
+                        }
 
                         mp_code_state_t *new_state = mp_obj_fun_bc_prepare_codestate(out_args.fun,
                             out_args.n_args, out_args.n_kw, out_args.args);
