@@ -670,6 +670,9 @@ void mp_lexer_to_next(mp_lexer_t *lex) {
 
 mp_lexer_t *mp_lexer_new(qstr src_name, mp_reader_t reader) {
     mp_lexer_t *lex = m_new_obj(mp_lexer_t);
+    if (lex == NULL) {
+        return NULL;
+    }
 
     lex->source_name = src_name;
     lex->reader = reader;
@@ -680,6 +683,9 @@ mp_lexer_t *mp_lexer_new(qstr src_name, mp_reader_t reader) {
     lex->alloc_indent_level = MICROPY_ALLOC_LEXER_INDENT_INIT;
     lex->num_indent_level = 1;
     lex->indent_level = m_new(uint16_t, lex->alloc_indent_level);
+    if (lex->indent_level == NULL) {
+        return NULL;
+    }
     vstr_init(&lex->vstr, 32);
 
     // store sentinel for first indentation level
@@ -701,6 +707,10 @@ mp_lexer_t *mp_lexer_new(qstr src_name, mp_reader_t reader) {
         lex->tok_kind = MP_TOKEN_INDENT;
     }
 
+    if (MP_STATE_THREAD(active_exception) != NULL) {
+        return NULL;
+    }
+
     return lex;
 }
 
@@ -715,6 +725,9 @@ mp_lexer_t *mp_lexer_new_from_str_len(qstr src_name, const char *str, size_t len
 mp_lexer_t *mp_lexer_new_from_file(const char *filename) {
     mp_reader_t reader;
     mp_reader_new_file(&reader, filename);
+    if (MP_STATE_THREAD(active_exception) != NULL) {
+        return NULL;
+    }
     return mp_lexer_new(qstr_from_str(filename), reader);
 }
 
