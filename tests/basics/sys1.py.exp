@@ -1,0 +1,9 @@
+sys
+<class 'list'>
+<class 'list'>
+True
+True
+True
+SystemExit ()
+SystemExit ()
+SystemExit (42,)

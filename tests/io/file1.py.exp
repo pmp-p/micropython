@@ -1,0 +1,15 @@
+longe
+r line1
+
+line2
+line3
+
+['longer line1\n', 'line2\n', 'line3\n']
+['longer line1\n', 'line2\n', 'line3\n']
+[b'longer line1\n', b'line2\n', b'line3\n']
+['longer line1\n', 'line2\n', 'line3\n']
+[b'longer line1\n', b'line2\n', b'line3\n']
+OSError
+OSError
+OSError
+OSError
