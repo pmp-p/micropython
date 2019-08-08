@@ -35,15 +35,19 @@ Methods
 
    Register `stream` *obj* for polling. *eventmask* is logical OR of:
 
-   * `uselect.POLLIN`  - data available for reading
-   * `uselect.POLLOUT` - more data can be written
+   * ``uselect.POLLIN``  - data available for reading
+   * ``uselect.POLLOUT`` - more data can be written
 
-   Note that flags like `uselect.POLLHUP` and `uselect.POLLERR` are
+   Note that flags like ``uselect.POLLHUP`` and ``uselect.POLLERR`` are
    *not* valid as input eventmask (these are unsolicited events which
    will be returned from `poll()` regardless of whether they are asked
    for). This semantics is per POSIX.
 
    *eventmask* defaults to ``uselect.POLLIN | uselect.POLLOUT``.
+
+   It is OK to call this function multiple times for the same *obj*.
+   Successive calls will update *obj*'s eventmask to the value of
+   *eventmask* (i.e. will behave as `modify()`).
 
 .. method:: poll.unregister(obj)
 
@@ -51,7 +55,8 @@ Methods
 
 .. method:: poll.modify(obj, eventmask)
 
-   Modify the *eventmask* for *obj*.
+   Modify the *eventmask* for *obj*. If *obj* is not registered, `OSError`
+   is raised with error of ENOENT.
 
 .. method:: poll.poll(timeout=-1)
 
@@ -63,7 +68,7 @@ Methods
    tuple, depending on a platform and version, so don't assume that its size is 2.
    The ``event`` element specifies which events happened with a stream and
    is a combination of ``uselect.POLL*`` constants described above. Note that
-   flags `uselect.POLLHUP` and `uselect.POLLERR` can be returned at any time
+   flags ``uselect.POLLHUP`` and ``uselect.POLLERR`` can be returned at any time
    (even if were not asked for), and must be acted on accordingly (the
    corresponding stream unregistered from poll and likely closed), because
    otherwise all further invocations of `poll()` may return immediately with

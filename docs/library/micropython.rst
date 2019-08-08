@@ -33,6 +33,18 @@ Functions
    compilation of scripts, and returns ``None``.  Otherwise it returns the current
    optimisation level.
 
+   The optimisation level controls the following compilation features:
+
+   - Assertions: at level 0 assertion statements are enabled and compiled into the
+     bytecode; at levels 1 and higher assertions are not compiled.
+   - Built-in ``__debug__`` variable: at level 0 this variable expands to ``True``;
+     at levels 1 and higher it expands to ``False``.
+   - Source-code line numbers: at levels 0, 1 and 2 source-code line number are
+     stored along with the bytecode so that exceptions can report the line number
+     they occurred at; at levels 3 and higher line numbers are not stored.
+
+   The default optimisation level is usually level 0.
+
 .. function:: alloc_emergency_exception_buf(size)
 
    Allocate *size* bytes of RAM for the emergency exception buffer (a good
@@ -78,6 +90,9 @@ Functions
    in a row and the lock-depth will increase, and then `heap_unlock()` must be
    called the same number of times to make the heap available again.
 
+   If the REPL becomes active with the heap locked then it will be forcefully
+   unlocked.
+
 .. function:: kbd_intr(chr)
 
    Set the character that will raise a `KeyboardInterrupt` exception.  By
@@ -121,5 +136,5 @@ Functions
    :ref:`reference documentation <isr_rules>` under "Creation of Python
    objects".
 
-   There is a finite stack to hold the scheduled functions and `schedule()`
-   will raise a `RuntimeError` if the stack is full.
+   There is a finite queue to hold the scheduled functions and `schedule()`
+   will raise a `RuntimeError` if the queue is full.
