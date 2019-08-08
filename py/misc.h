@@ -97,7 +97,7 @@ void *m_realloc(void *ptr, size_t new_num_bytes);
 void *m_realloc_maybe(void *ptr, size_t new_num_bytes, bool allow_move);
 void m_free(void *ptr);
 #endif
-NORETURN void m_malloc_fail(size_t num_bytes);
+void *m_malloc_fail(size_t num_bytes);
 
 #if MICROPY_MEM_STATS
 size_t m_get_total_bytes_allocated(void);
@@ -177,8 +177,8 @@ char *vstr_add_len(vstr_t *vstr, size_t len);
 char *vstr_null_terminated_str(vstr_t *vstr);
 void vstr_add_byte(vstr_t *vstr, byte v);
 void vstr_add_char(vstr_t *vstr, unichar chr);
-void vstr_add_str(vstr_t *vstr, const char *str);
-void vstr_add_strn(vstr_t *vstr, const char *str, size_t len);
+int vstr_add_str(vstr_t *vstr, const char *str);
+int vstr_add_strn(vstr_t *vstr, const char *str, size_t len);
 void vstr_ins_byte(vstr_t *vstr, size_t byte_pos, byte b);
 void vstr_ins_char(vstr_t *vstr, size_t char_pos, unichar chr);
 void vstr_cut_head_bytes(vstr_t *vstr, size_t bytes_to_cut);

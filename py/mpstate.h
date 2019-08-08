@@ -141,7 +141,7 @@ typedef struct _mp_state_vm_t {
     volatile mp_obj_t mp_pending_exception;
 
     #if MICROPY_ENABLE_SCHEDULER
-    mp_sched_item_t sched_stack[MICROPY_SCHEDULER_DEPTH];
+    mp_sched_item_t sched_queue[MICROPY_SCHEDULER_DEPTH];
     #endif
 
     // current exception being handled, for sys.exc_info()
@@ -243,6 +243,8 @@ typedef struct _mp_state_thread_t {
 
     mp_obj_dict_t *dict_locals;
     mp_obj_dict_t *dict_globals;
+
+    mp_obj_base_t *active_exception;
 
     nlr_buf_t *nlr_top;
 } mp_state_thread_t;
