@@ -45,7 +45,7 @@ void mp_seq_multiply(const void *items, size_t item_sz, size_t len, size_t times
 
 #if MICROPY_PY_BUILTINS_SLICE
 
-bool mp_seq_get_fast_slice_indexes(mp_uint_t len, mp_obj_t slice, mp_bound_slice_t *indexes) {
+int mp_seq_get_fast_slice_indexes(mp_uint_t len, mp_obj_t slice, mp_bound_slice_t *indexes) {
     mp_obj_t ostart, ostop, ostep;
     mp_int_t start, stop;
     mp_obj_slice_get(slice, &ostart, &ostop, &ostep);
@@ -53,7 +53,8 @@ bool mp_seq_get_fast_slice_indexes(mp_uint_t len, mp_obj_t slice, mp_bound_slice
     if (ostep != mp_const_none && ostep != MP_OBJ_NEW_SMALL_INT(1)) {
         indexes->step = mp_obj_get_int(ostep);
         if (indexes->step == 0) {
-            mp_raise_ValueError("slice step cannot be zero");
+            mp_raise_ValueError_o("slice step cannot be zero");
+            return -1;
         }
     } else {
         indexes->step = 1;
@@ -165,7 +166,7 @@ bool mp_seq_cmp_bytes(mp_uint_t op, const byte *data1, size_t len1, const byte *
     size_t min_len = len1 < len2 ? len1 : len2;
     int res = memcmp(data1, data2, min_len);
     if (op == MP_BINARY_OP_EQUAL) {
-        // If we are checking for equality, here're the answer
+        // If we are checking for equality, here's the answer
         return res == 0;
     }
     if (res < 0) {
@@ -260,7 +261,7 @@ mp_obj_t mp_seq_index_obj(const mp_obj_t *items, size_t len, size_t n_args, cons
         }
     }
 
-    mp_raise_ValueError("object not in sequence");
+    return mp_raise_ValueError_o("object not in sequence");
 }
 
 mp_obj_t mp_seq_count_obj(const mp_obj_t *items, size_t len, mp_obj_t value) {
