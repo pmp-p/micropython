@@ -485,11 +485,13 @@ mp_raw_code_t *mp_raw_code_load(mp_reader_t *reader) {
         || MPY_FEATURE_DECODE_FLAGS(header[2]) != MPY_FEATURE_FLAGS
         || header[3] > mp_small_int_bits()
         || read_uint(reader, NULL) > QSTR_WINDOW_SIZE) {
-        mp_raise_ValueError("incompatible .mpy file");
+        mp_raise_ValueError_o("incompatible .mpy file");
+        return NULL;
     }
     if (MPY_FEATURE_DECODE_ARCH(header[2]) != MP_NATIVE_ARCH_NONE
         && MPY_FEATURE_DECODE_ARCH(header[2]) != MPY_FEATURE_ARCH) {
-        mp_raise_ValueError("incompatible .mpy arch");
+        mp_raise_ValueError_o("incompatible .mpy arch");
+        return NULL;
     }
     qstr_window_t qw;
     qw.idx = 0;

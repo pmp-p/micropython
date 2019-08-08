@@ -6,8 +6,8 @@ QSTR_DEFS = qstrdefsport.h
 
 include $(TOP)/py/py.mk
 
-CC = emcc -g4
-LD = emcc -g4
+CC = emcc
+LD = emcc
 
 INC += -I.
 INC += -I$(TOP)
@@ -15,14 +15,26 @@ INC += -I$(BUILD)
 
 CPP = clang -E
 
+JSFLAGS ?= -O0 -g4 --source-map-base http://localhost:8080
+LDFLAGS ?= -m32
+
 ifdef EMSCRIPTEN
-    CPP += -isystem $(EMSCRIPTEN)/system/include/libc -cxx-isystem $(EMSCRIPTEN)/system/include/libcxx
+	CPP += -isystem $(EMSCRIPTEN)/system/include/libc -cxx-isystem $(EMSCRIPTEN)/system/include/libcxx
+
+	ifeq (,$(findstring upstream/bin, $(EMMAKEN_COMPILER)))
+		JSFLAGS += -s "BINARYEN_TRAP_MODE='clamp'"
+		LDFLAGS += -Wl,-Map=$@.map,--cref -Wl,--gc-sections
+	else
+		LDFLAGS += -Wl,--gc-sections
+	endif  
 endif
 
-CFLAGS = -m32 -Wall -Werror $(INC) -std=c99 $(COPT)
-LDFLAGS = -m32 -Wl,-Map=$@.map,--cref -Wl,--gc-sections
 
-CFLAGS += -O0 -DNDEBUG
+CFLAGS = -m32 -Wall -Werror $(INC) -std=c99 $(COPT)
+
+
+
+CFLAGS += -DNDEBUG
 CFLAGS += -fdata-sections -ffunction-sections
 
 ifneq ($(FROZEN_MPY_DIR),)
@@ -51,8 +63,9 @@ OBJ = $(PY_O)
 OBJ += $(addprefix $(BUILD)/, $(SRC_LIB:.c=.o))
 OBJ += $(addprefix $(BUILD)/, $(SRC_C:.c=.o))
 
-JSFLAGS = -O0 -s EXPORTED_FUNCTIONS="['_mp_js_init', '_mp_js_init_repl', '_mp_js_do_str', '_mp_js_process_char', '_mp_hal_get_interrupt_char', '_mp_keyboard_interrupt']" -s EXTRA_EXPORTED_RUNTIME_METHODS="['ccall', 'cwrap']" -s "BINARYEN_TRAP_MODE='clamp'" --memory-init-file 0 --js-library library.js
+JSFLAGS += -s EXPORTED_FUNCTIONS="['_mp_js_init', '_mp_js_init_repl', '_mp_js_do_str', '_mp_js_process_char', '_mp_hal_get_interrupt_char', '_mp_keyboard_interrupt']" -s EXTRA_EXPORTED_RUNTIME_METHODS="['ccall', 'cwrap']" --memory-init-file 0 --js-library library.js
 
+	
 all: $(BUILD)/micropython.js
 
 $(BUILD)/micropython.js: $(OBJ) library.js wrapper.js
