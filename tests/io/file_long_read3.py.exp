@@ -1,0 +1,2 @@
+512
+b'{\n    "info": {\n        "maintainer": null, \n        "docs_url": "", \n        "requires_python": null, \n        "maintainer_email": null, \n        "cheesecake_code_kwalitee_id": null, \n        "keywords": null, \n        "package_url": "http://pypi.python.org/pypi/micropython-uasyncio", \n        "author": "MicroPython Developers", \n        "author_email": "micro-python@googlegroups.com", \n        "download_url": "UNKNOWN", \n        "platform": "UNKNOWN", \n        "version": "0.8.1", \n        "cheesecake_docu'

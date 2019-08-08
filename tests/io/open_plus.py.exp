@@ -1,0 +1,4 @@
+Expected OSError
+b'1234567890'
+b'abcdefg'
+b'1234efg'
