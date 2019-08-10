@@ -47,8 +47,13 @@ TOUCH = touch
 PYTHON = python3
 
 AS = $(CROSS_COMPILE)as
+ifdef CLANG
+CC = $(CROSS_COMPILE)clang
+CXX = $(CROSS_COMPILE)clang++
+else
 CC = $(CROSS_COMPILE)gcc
 CXX = $(CROSS_COMPILE)g++
+endif
 LD = $(CROSS_COMPILE)ld
 OBJCOPY = $(CROSS_COMPILE)objcopy
 SIZE = $(CROSS_COMPILE)size
