@@ -1,0 +1,16 @@
+6
+b' line'
+11
+11
+b'1\nli'
+15
+19
+b'line3\n'
+25
+0
+b'longe'
+5
+6
+ line
+11
+OSError or ValueError
