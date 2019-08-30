@@ -138,6 +138,6 @@ void mp_reader_new_file(mp_reader_t *reader, const char *filename) {
     }
     mp_reader_new_file_from_fd(reader, fd, true);
 }
-#endif
+#endif // !MICROPY_VFS_POSIX
 
-#endif
+#endif // MICROPY_READER_POSIX

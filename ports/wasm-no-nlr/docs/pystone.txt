@@ -1,0 +1,7 @@
+pystone 1.2
+==============
+
+cpython 3.8 clang 6      : 90 Kpy/s
+chromium fastcomp µpy    : 14 Kpy/s
+v8+upstream clang 10 µpy : 11 Kpy/s
+µpy gcc 7                : 11 Kpy/s

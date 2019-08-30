@@ -13,6 +13,12 @@ CFLAGS += -Wall -Werror $(INC) -std=gnu11 $(COPT)
 CFLAGS += -fdata-sections -ffunction-sections
 CFLAGS += $(CFLAGS_MOD)
 
+CPPFLAGS +=  -D__CPP__
+
+ifdef __DEV__
+	CFLAGS += -D__DEV__=1
+	CPPFLAGS += -D__DEV__=1
+endif
 
 ifdef EMSCRIPTEN
 	#default debug options for browser debugger
@@ -20,12 +26,12 @@ ifdef EMSCRIPTEN
 
 	#Debugging/Optimization
 	ifeq ($(DEBUG), 1)
-		CFLAGS += -O0 -g4
+		CFLAGS += -O0 -g4 -fno-inline
 	else
-		CFLAGS += -Oz -g0 -DNDEBUG
+		CFLAGS += -O0 -g0 -DNDEBUG -fno-inline
 	endif
 	
-	JSFLAGS += -s WASM=1
+	JSFLAGS += -s WASM=1 -s TOTAL_MEMORY=512MB -s TOTAL_STACK=16777216
 	JSFLAGS += --memory-init-file 0 --js-library library.js
 	JSFLAGS += -s EXTRA_EXPORTED_RUNTIME_METHODS="['ccall', 'cwrap']"
 	JSFLAGS += -s EXPORTED_FUNCTIONS="['_mp_js_init', '_Py_NewInterpreter',\
@@ -34,18 +40,20 @@ ifdef EMSCRIPTEN
 
 	CC = emcc $(JSFLAGS)
 	LD = emcc $(JSFLAGS)
-	CPP = clang -E -undef -D__CPP__ -D__EMSCRIPTEN__ -U__STDC_VERSION__
+	CPP = clang -E -undef $(CPPFLAGS) -D__EMSCRIPTEN__ -U__STDC_VERSION__
 	CPP += --sysroot $(EMSCRIPTEN)/system
 	CPP += -include $(BUILD)/clang_predefs.h
 	CPP += $(addprefix -isystem, $(shell env LC_ALL=C $(CC) $(CFLAGS_EXTRA) -E -x c++ /dev/null -v 2>&1 |sed -e '/^\#include <...>/,/^End of search/{ //!b };d'))
 	
 	#check if not using emscripten-upstream branch
 	ifeq (,$(findstring upstream/bin, $(EMMAKEN_COMPILER)))
-		JSFLAGS += -s "BINARYEN_TRAP_MODE='clamp'"
+#use ASM.JS
+		JSFLAGS += -s WASM=0 -s "BINARYEN_TRAP_MODE='clamp'"
 	else 
+#wasm only !	
 		CFLAGS += -D__WASM__=1
 		CPP += -D__WASM__=1
-		LDFLAGS += -Wl,--gc-sections
+		#LDFLAGS += -Wl,--gc-sections
 	endif  
 	
 
@@ -72,6 +80,18 @@ else
 
 endif
 
+ifneq ($(FROZEN_DIR),)
+# To use frozen source modules, put your .py files in a subdirectory (eg scripts/)
+# and then invoke make with FROZEN_DIR=scripts (be sure to build from scratch).
+CFLAGS += -DMICROPY_MODULE_FROZEN_STR
+endif
+
+ifneq ($(FROZEN_MPY_DIR),)
+# To use frozen bytecode, put your .py files in a subdirectory (eg frozen/) and
+# then invoke make with FROZEN_MPY_DIR=frozen (be sure to build from scratch).
+CFLAGS += -DMICROPY_QSTR_EXTRA_POOL=mp_qstr_frozen_const_pool
+CFLAGS += -DMICROPY_MODULE_FROZEN_MPY
+endif
 
 SRC_LIB = $(addprefix lib/,\
 	utils/interrupt_char.c \

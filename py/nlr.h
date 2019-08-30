@@ -66,9 +66,9 @@
     #define MICROPY_NLR_XTENSA (1)
     #define MICROPY_NLR_NUM_REGS (10)
 #else
-    #if __WASM__
+    #if __DEV__
         #if MICROPY_NLR_SETJMP
-            #pragma message ("That arch does not support NLR/SETJMP")
+            #pragma message ("That arch may not support NLR/SETJMP")
         #endif
     #else
         #define MICROPY_NLR_SETJMP (1)
