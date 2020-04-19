@@ -20,10 +20,9 @@
 ######################
 *.swp
 
-# Build directories
+# Build directory
 ######################
 build/
-build-*/
 
 # Test failure outputs
 ######################

@@ -1079,11 +1079,6 @@ typedef double mp_float_t;
 #define MICROPY_PY_MATH_FACTORIAL (0)
 #endif
 
-// Whether to provide math.isclose function
-#ifndef MICROPY_PY_MATH_ISCLOSE
-#define MICROPY_PY_MATH_ISCLOSE (0)
-#endif
-
 // Whether to provide "cmath" module
 #ifndef MICROPY_PY_CMATH
 #define MICROPY_PY_CMATH (0)
@@ -1164,11 +1159,6 @@ typedef double mp_float_t;
 // Whether to provide "sys.exit" function
 #ifndef MICROPY_PY_SYS_EXIT
 #define MICROPY_PY_SYS_EXIT (1)
-#endif
-
-// Whether to provide "sys.atexit" function (MicroPython extension)
-#ifndef MICROPY_PY_SYS_ATEXIT
-#define MICROPY_PY_SYS_ATEXIT (0)
 #endif
 
 // Whether to provide "sys.getsizeof" function
