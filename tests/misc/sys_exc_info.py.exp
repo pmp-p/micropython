@@ -1,3 +1,0 @@
-(<class 'ValueError'>, ValueError('value', 123))
-(<class 'ValueError'>, ValueError('value', 123))
-(None, None)

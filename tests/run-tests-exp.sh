@@ -6,7 +6,7 @@
 #
 
 RM="rm -f"
-MP_PY=${MICROPY_MICROPYTHON:-micropython}
+MP_PY=micropython
 
 numtests=0
 numtestcases=0
@@ -30,37 +30,22 @@ do
     expfile=$infile.exp
 
     $MP_PY $infile > $outfile
+    numtestcases=$(expr $numtestcases + $(cat $expfile | wc -l))
 
-    if [ -f "$expfile" ]
+    if grep -q "SKIP\|SyntaxError: invalid micropython decorator" $outfile
     then
-        numtestcases=$(expr $numtestcases + $(cat $expfile | wc -l))
-        if grep -q "SKIP\|SyntaxError: invalid micropython decorator" $outfile
-        then
-            # we don't count tests that explicitly ask to be skipped
-            # we don't count tests that fail due to unsupported decorator
-            echo "skip  $infile"
-            $RM $outfile
-            numskipped=$(expr $numskipped + 1)
-            nameskipped="$nameskipped $basename"
-        else
-            diff --brief $expfile $outfile > /dev/null
-
-            if [ $? -eq 0 ]
-            then
-                echo "pass  $infile"
-                $RM $outfile
-                numpassed=$(expr $numpassed + 1)
-            else
-                echo "FAIL  $infile"
-                numfailed=$(expr $numfailed + 1)
-                namefailed="$namefailed $basename"
-            fi
-        fi
+        # we don't count tests that explicitly ask to be skipped
+        # we don't count tests that fail due to unsupported decorator
+        echo "skip  $infile"
+        $RM $outfile
+        numskipped=$(expr $numskipped + 1)
+        nameskipped="$nameskipped $basename"
     else
-        $MP_PY $infile > $outfile
+        diff --brief $expfile $outfile > /dev/null
+
         if [ $? -eq 0 ]
         then
-            echo "rvok  $infile"
+            echo "pass  $infile"
             $RM $outfile
             numpassed=$(expr $numpassed + 1)
         else
@@ -69,6 +54,7 @@ do
             namefailed="$namefailed $basename"
         fi
     fi
+
     numtests=$(expr $numtests + 1)
 done
 

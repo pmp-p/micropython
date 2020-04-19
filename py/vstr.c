@@ -95,8 +95,7 @@ char *vstr_extend(vstr_t *vstr, size_t size) {
     if (vstr->fixed_buf) {
         // We can't reallocate, and the caller is expecting the space to
         // be there, so the only safe option is to raise an exception.
-        mp_raise_msg_o(&mp_type_RuntimeError, NULL);
-        return NULL;
+        mp_raise_msg(&mp_type_RuntimeError, NULL);
     }
     char *new_buf = m_renew(char, vstr->buf, vstr->alloc, vstr->alloc + size);
     char *p = new_buf + vstr->alloc;
@@ -105,24 +104,18 @@ char *vstr_extend(vstr_t *vstr, size_t size) {
     return p;
 }
 
-STATIC int vstr_ensure_extra(vstr_t *vstr, size_t size) {
-    if (vstr->buf == NULL) {
-        // could not allocate a buffer
-        return -1;
-    }
+STATIC void vstr_ensure_extra(vstr_t *vstr, size_t size) {
     if (vstr->len + size > vstr->alloc) {
         if (vstr->fixed_buf) {
             // We can't reallocate, and the caller is expecting the space to
             // be there, so the only safe option is to raise an exception.
-            mp_raise_msg_o(&mp_type_RuntimeError, NULL);
-            return -1;
+            mp_raise_msg(&mp_type_RuntimeError, NULL);
         }
         size_t new_alloc = ROUND_ALLOC((vstr->len + size) + 16);
         char *new_buf = m_renew(char, vstr->buf, vstr->alloc, new_alloc);
         vstr->alloc = new_alloc;
         vstr->buf = new_buf;
     }
-    return 0;
 }
 
 void vstr_hint_size(vstr_t *vstr, size_t size) {
@@ -140,9 +133,7 @@ char *vstr_add_len(vstr_t *vstr, size_t len) {
 char *vstr_null_terminated_str(vstr_t *vstr) {
     // If there's no more room, add single byte
     if (vstr->alloc == vstr->len) {
-        if (vstr_extend(vstr, 1) == NULL) {
-            return NULL;
-        }
+        vstr_extend(vstr, 1);
     }
     vstr->buf[vstr->len] = '\0';
     return vstr->buf;
@@ -182,17 +173,14 @@ void vstr_add_char(vstr_t *vstr, unichar c) {
 #endif
 }
 
-int vstr_add_str(vstr_t *vstr, const char *str) {
-    return vstr_add_strn(vstr, str, strlen(str));
+void vstr_add_str(vstr_t *vstr, const char *str) {
+    vstr_add_strn(vstr, str, strlen(str));
 }
 
-int vstr_add_strn(vstr_t *vstr, const char *str, size_t len) {
-    if (vstr_ensure_extra(vstr, len)) {
-        return -1;
-    }
+void vstr_add_strn(vstr_t *vstr, const char *str, size_t len) {
+    vstr_ensure_extra(vstr, len);
     memmove(vstr->buf + vstr->len, str, len);
     vstr->len += len;
-    return 0; // success
 }
 
 STATIC char *vstr_ins_blank_bytes(vstr_t *vstr, size_t byte_pos, size_t byte_len) {

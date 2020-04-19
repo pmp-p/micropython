@@ -44,12 +44,10 @@
 #endif
 
 #ifdef MICROPY_CPYTHON_COMPAT
-STATIC int check_fd_is_open(const mp_obj_fdfile_t *o) {
+STATIC void check_fd_is_open(const mp_obj_fdfile_t *o) {
     if (o->fd < 0) {
-        mp_raise_ValueError_o("I/O operation on closed file");
-        return 1;
+        mp_raise_ValueError("I/O operation on closed file");
     }
-    return 0;
 }
 #else
 #define check_fd_is_open(o)
@@ -66,9 +64,7 @@ STATIC void fdfile_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kin
 
 STATIC mp_uint_t fdfile_read(mp_obj_t o_in, void *buf, mp_uint_t size, int *errcode) {
     mp_obj_fdfile_t *o = MP_OBJ_TO_PTR(o_in);
-    if (check_fd_is_open(o)) {
-        return MP_STREAM_ERROR;
-    }
+    check_fd_is_open(o);
     mp_int_t r = read(o->fd, buf, size);
     if (r == -1) {
         *errcode = errno;
@@ -79,9 +75,7 @@ STATIC mp_uint_t fdfile_read(mp_obj_t o_in, void *buf, mp_uint_t size, int *errc
 
 STATIC mp_uint_t fdfile_write(mp_obj_t o_in, const void *buf, mp_uint_t size, int *errcode) {
     mp_obj_fdfile_t *o = MP_OBJ_TO_PTR(o_in);
-    if (check_fd_is_open(o)) {
-        return MP_STREAM_ERROR;
-    }
+    check_fd_is_open(o);
     #if MICROPY_PY_OS_DUPTERM
     if (o->fd <= STDERR_FILENO) {
         mp_hal_stdout_tx_strn(buf, size);
@@ -93,8 +87,7 @@ STATIC mp_uint_t fdfile_write(mp_obj_t o_in, const void *buf, mp_uint_t size, in
         if (MP_STATE_VM(mp_pending_exception) != MP_OBJ_NULL) {
             mp_obj_t obj = MP_STATE_VM(mp_pending_exception);
             MP_STATE_VM(mp_pending_exception) = MP_OBJ_NULL;
-            mp_raise_o(obj);
-            return MP_STREAM_ERROR;
+            nlr_raise(obj);
         }
         r = write(o->fd, buf, size);
     }
@@ -107,9 +100,7 @@ STATIC mp_uint_t fdfile_write(mp_obj_t o_in, const void *buf, mp_uint_t size, in
 
 STATIC mp_uint_t fdfile_ioctl(mp_obj_t o_in, mp_uint_t request, uintptr_t arg, int *errcode) {
     mp_obj_fdfile_t *o = MP_OBJ_TO_PTR(o_in);
-    if (check_fd_is_open(o)) {
-        return MP_STREAM_ERROR;
-    }
+    check_fd_is_open(o);
     switch (request) {
         case MP_STREAM_SEEK: {
             struct mp_stream_seek_t *s = (struct mp_stream_seek_t*)arg;
@@ -149,9 +140,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(fdfile___exit___obj, 4, 4, fdfile___e
 
 STATIC mp_obj_t fdfile_fileno(mp_obj_t self_in) {
     mp_obj_fdfile_t *self = MP_OBJ_TO_PTR(self_in);
-    if (check_fd_is_open(self)) {
-        return MP_OBJ_NULL;
-    }
+    check_fd_is_open(self);
     return MP_OBJ_NEW_SMALL_INT(self->fd);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(fdfile_fileno_obj, fdfile_fileno);
@@ -211,7 +200,7 @@ STATIC mp_obj_t fdfile_open(const mp_obj_type_t *type, mp_arg_val_t *args) {
     const char *fname = mp_obj_str_get_str(fid);
     int fd = open(fname, mode_x | mode_rw, 0644);
     if (fd == -1) {
-        return mp_raise_OSError_o(errno);
+        mp_raise_OSError(errno);
     }
     o->fd = fd;
     return MP_OBJ_FROM_PTR(o);

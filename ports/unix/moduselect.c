@@ -164,7 +164,7 @@ STATIC mp_obj_t poll_modify(mp_obj_t self_in, mp_obj_t obj_in, mp_obj_t eventmas
     }
 
     // obj doesn't exist in poller
-    return mp_raise_OSError_o(MP_ENOENT);
+    mp_raise_OSError(MP_ENOENT);
 }
 MP_DEFINE_CONST_FUN_OBJ_3(poll_modify_obj, poll_modify);
 
@@ -189,7 +189,7 @@ STATIC int poll_poll_internal(size_t n_args, const mp_obj_t *args) {
     self->flags = flags;
 
     int n_ready = poll(self->entries, self->len, timeout);
-    RAISE_ERRNO_R(n_ready, errno, -1);
+    RAISE_ERRNO(n_ready, errno);
     return n_ready;
 }
 
@@ -197,10 +197,6 @@ STATIC int poll_poll_internal(size_t n_args, const mp_obj_t *args) {
 /// Timeout is in milliseconds.
 STATIC mp_obj_t poll_poll(size_t n_args, const mp_obj_t *args) {
     int n_ready = poll_poll_internal(n_args, args);
-
-    if (n_ready < 0) {
-        return MP_OBJ_NULL;
-    }
 
     if (n_ready == 0) {
         return mp_const_empty_tuple;
@@ -240,10 +236,6 @@ STATIC mp_obj_t poll_ipoll(size_t n_args, const mp_obj_t *args) {
     }
 
     int n_ready = poll_poll_internal(n_args, args);
-    if (n_ready < 0) {
-        return MP_OBJ_NULL;
-    }
-
     self->iter_cnt = n_ready;
     self->iter_idx = 0;
 

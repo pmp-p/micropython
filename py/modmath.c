@@ -35,15 +35,15 @@
 // And by defining our own we can ensure it uses the correct const format.
 #define MP_PI MICROPY_FLOAT_CONST(3.14159265358979323846)
 
-STATIC mp_obj_t math_error(void) {
-    return mp_raise_ValueError_o("math domain error");
+STATIC NORETURN void math_error(void) {
+    mp_raise_ValueError("math domain error");
 }
 
 STATIC mp_obj_t math_generic_1(mp_obj_t x_obj, mp_float_t (*f)(mp_float_t)) {
     mp_float_t x = mp_obj_get_float(x_obj);
     mp_float_t ans = f(x);
     if ((isnan(ans) && !isnan(x)) || (isinf(ans) && !isinf(x))) {
-        return math_error();
+        math_error();
     }
     return mp_obj_new_float(ans);
 }
@@ -53,7 +53,7 @@ STATIC mp_obj_t math_generic_2(mp_obj_t x_obj, mp_obj_t y_obj, mp_float_t (*f)(m
     mp_float_t y = mp_obj_get_float(y_obj);
     mp_float_t ans = f(x, y);
     if ((isnan(ans) && !isnan(x) && !isnan(y)) || (isinf(ans) && !isinf(x))) {
-        return math_error();
+        math_error();
     }
     return mp_obj_new_float(ans);
 }
@@ -213,7 +213,7 @@ MP_DEFINE_CONST_FUN_OBJ_KW(mp_math_isclose_obj, 2, mp_math_isclose);
 STATIC mp_obj_t mp_math_log(size_t n_args, const mp_obj_t *args) {
     mp_float_t x = mp_obj_get_float(args[0]);
     if (x <= (mp_float_t)0.0) {
-        return math_error();
+        math_error();
     }
     mp_float_t l = MICROPY_FLOAT_C_FUN(log)(x);
     if (n_args == 1) {
@@ -221,9 +221,9 @@ STATIC mp_obj_t mp_math_log(size_t n_args, const mp_obj_t *args) {
     } else {
         mp_float_t base = mp_obj_get_float(args[1]);
         if (base <= (mp_float_t)0.0) {
-            return math_error();
+            math_error();
         } else if (base == (mp_float_t)1.0) {
-            return mp_raise_msg_o(&mp_type_ZeroDivisionError, "divide by zero");
+            mp_raise_msg(&mp_type_ZeroDivisionError, "divide by zero");
         }
         return mp_obj_new_float(l / MICROPY_FLOAT_C_FUN(log)(base));
     }
@@ -294,7 +294,7 @@ STATIC mp_obj_t mp_math_factorial_inner(mp_uint_t start, mp_uint_t end) {
 STATIC mp_obj_t mp_math_factorial(mp_obj_t x_obj) {
     mp_int_t max = mp_obj_get_int(x_obj);
     if (max < 0) {
-        return mp_raise_msg_o(&mp_type_ValueError, "negative factorial");
+        mp_raise_msg(&mp_type_ValueError, "negative factorial");
     } else if (max == 0) {
         return MP_OBJ_NEW_SMALL_INT(1);
     }
@@ -308,7 +308,7 @@ STATIC mp_obj_t mp_math_factorial(mp_obj_t x_obj) {
 STATIC mp_obj_t mp_math_factorial(mp_obj_t x_obj) {
     mp_int_t max = mp_obj_get_int(x_obj);
     if (max < 0) {
-        return mp_raise_msg_o(&mp_type_ValueError, "negative factorial");
+        mp_raise_msg(&mp_type_ValueError, "negative factorial");
     } else if (max <= 1) {
         return MP_OBJ_NEW_SMALL_INT(1);
     }

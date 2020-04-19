@@ -66,13 +66,8 @@ STATIC int parse_compile_execute(const void *source, mp_parse_input_kind_t input
     // by default a SystemExit exception returns 0
     pyexec_system_exit = 0;
 
-#if __WASM__
-    if (1) {
-    #pragma message ("FIX ME nlr_push")
-#else
     nlr_buf_t nlr;
     if (nlr_push(&nlr) == 0) {
-#endif
         mp_obj_t module_fun;
         #if MICROPY_MODULE_FROZEN_MPY
         if (exec_flags & EXEC_FLAG_SOURCE_IS_RAW_CODE) {
@@ -118,21 +113,14 @@ STATIC int parse_compile_execute(const void *source, mp_parse_input_kind_t input
         if (exec_flags & EXEC_FLAG_PRINT_EOF) {
             mp_hal_stdout_tx_strn("\x04", 1);
         }
-#if __WASM__
-    #pragma message ("FIX ME nlr.ret_val")
-        ret = 0;
-#else
-
         // check for SystemExit
         if (mp_obj_is_subclass_fast(MP_OBJ_FROM_PTR(((mp_obj_base_t*)nlr.ret_val)->type), MP_OBJ_FROM_PTR(&mp_type_SystemExit))) {
             // at the moment, the value of SystemExit is unused
             ret = pyexec_system_exit;
         } else {
             mp_obj_print_exception(&mp_plat_print, MP_OBJ_FROM_PTR(nlr.ret_val));
-
             ret = 0;
         }
-#endif
     }
 
     // display debugging info if wanted

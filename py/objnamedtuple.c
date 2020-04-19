@@ -87,7 +87,7 @@ STATIC void namedtuple_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
     } else {
         // delete/store attribute
         // provide more detailed error message than we'd get by just returning
-        mp_raise_msg_o(&mp_type_AttributeError, "can't set attribute");
+        mp_raise_msg(&mp_type_AttributeError, "can't set attribute");
     }
 }
 
@@ -97,13 +97,12 @@ STATIC mp_obj_t namedtuple_make_new(const mp_obj_type_t *type_in, size_t n_args,
     if (n_args + n_kw != num_fields) {
         if (MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_TERSE) {
             mp_arg_error_terse_mismatch();
-            return MP_OBJ_NULL;
         } else if (MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_NORMAL) {
-            return mp_raise_o(mp_obj_new_exception_msg_varg(&mp_type_TypeError,
+            nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_TypeError,
                 "function takes %d positional arguments but %d were given",
                 num_fields, n_args + n_kw));
         } else if (MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_DETAILED) {
-            return mp_raise_o(mp_obj_new_exception_msg_varg(&mp_type_TypeError,
+            nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_TypeError,
                 "%q() takes %d positional arguments but %d were given",
                 type->base.name, num_fields, n_args + n_kw));
         }
@@ -124,18 +123,16 @@ STATIC mp_obj_t namedtuple_make_new(const mp_obj_type_t *type_in, size_t n_args,
         if (id == (size_t)-1) {
             if (MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_TERSE) {
                 mp_arg_error_terse_mismatch();
-                return MP_OBJ_NULL;
             } else {
-                return mp_raise_o(mp_obj_new_exception_msg_varg(&mp_type_TypeError,
+                nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_TypeError,
                     "unexpected keyword argument '%q'", kw));
             }
         }
         if (tuple->items[id] != MP_OBJ_NULL) {
             if (MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_TERSE) {
                 mp_arg_error_terse_mismatch();
-                return MP_OBJ_NULL;
             } else {
-                return mp_raise_o(mp_obj_new_exception_msg_varg(&mp_type_TypeError,
+                nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_TypeError,
                     "function got multiple values for argument '%q'", kw));
             }
         }
@@ -179,9 +176,7 @@ STATIC mp_obj_t new_namedtuple_type(mp_obj_t name_in, mp_obj_t fields_in) {
         fields_in = mp_obj_str_split(1, &fields_in);
     }
     #endif
-    if (mp_obj_get_array(fields_in, &n_fields, &fields)) {
-        return MP_OBJ_NULL;
-    }
+    mp_obj_get_array(fields_in, &n_fields, &fields);
     return mp_obj_new_namedtuple_type(name, n_fields, fields);
 }
 MP_DEFINE_CONST_FUN_OBJ_2(mp_namedtuple_obj, new_namedtuple_type);

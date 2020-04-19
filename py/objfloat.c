@@ -130,9 +130,7 @@ STATIC void float_print(const mp_print_t *print, mp_obj_t o_in, mp_print_kind_t 
 
 STATIC mp_obj_t float_make_new(const mp_obj_type_t *type_in, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     (void)type_in;
-    if (mp_arg_check_num(n_args, n_kw, 0, 1, false)) {
-        return MP_OBJ_NULL;
-    }
+    mp_arg_check_num(n_args, n_kw, 0, 1, false);
 
     switch (n_args) {
         case 0:
@@ -149,11 +147,7 @@ STATIC mp_obj_t float_make_new(const mp_obj_type_t *type_in, size_t n_args, size
                 return args[0];
             } else {
                 // something else, try to cast it to a float
-                mp_float_t val = mp_obj_get_float(args[0]);
-                if (MP_STATE_THREAD(active_exception) != NULL) {
-                    return MP_OBJ_NULL;
-                }
-                return mp_obj_new_float(val);
+                return mp_obj_new_float(mp_obj_get_float(args[0]));
             }
         }
     }
@@ -267,7 +261,7 @@ mp_obj_t mp_obj_float_binary_op(mp_binary_op_t op, mp_float_t lhs_val, mp_obj_t 
         case MP_BINARY_OP_INPLACE_FLOOR_DIVIDE:
             if (rhs_val == 0) {
                 zero_division_error:
-                return mp_raise_msg_o(&mp_type_ZeroDivisionError, "divide by zero");
+                mp_raise_msg(&mp_type_ZeroDivisionError, "divide by zero");
             }
             // Python specs require that x == (x//y)*y + (x%y) so we must
             // call divmod to compute the correct floor division, which
@@ -305,7 +299,7 @@ mp_obj_t mp_obj_float_binary_op(mp_binary_op_t op, mp_float_t lhs_val, mp_obj_t 
                 #if MICROPY_PY_BUILTINS_COMPLEX
                 return mp_obj_complex_binary_op(MP_BINARY_OP_POWER, lhs_val, 0, rhs_in);
                 #else
-                return mp_raise_ValueError_o("complex values not supported");
+                mp_raise_ValueError("complex values not supported");
                 #endif
             }
             lhs_val = MICROPY_FLOAT_C_FUN(pow)(lhs_val, rhs_val);

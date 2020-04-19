@@ -104,8 +104,7 @@ size_t mp_binary_get_size(char struct_type, char val_type, mp_uint_t *palign) {
     }
 
     if (size == 0) {
-        mp_raise_ValueError_o("bad typecode");
-        return 0;
+        mp_raise_ValueError("bad typecode");
     }
 
     if (palign != NULL) {

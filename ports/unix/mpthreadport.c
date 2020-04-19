@@ -228,8 +228,7 @@ void mp_thread_create(void *(*entry)(void*), void *arg, size_t *stack_size) {
     return;
 
 er:
-    mp_raise_OSError_o(ret);
-    // TODO how to indicate error to caller?
+    mp_raise_OSError(ret);
 }
 
 void mp_thread_finish(void) {

@@ -175,9 +175,6 @@ STATIC mp_obj_t set_copy(mp_obj_t self_in) {
     check_set_or_frozenset(self_in);
     mp_obj_set_t *self = MP_OBJ_TO_PTR(self_in);
     mp_obj_set_t *other = m_new_obj(mp_obj_set_t);
-    if (other == NULL) {
-        return MP_OBJ_NULL;
-    }
     other->base.type = self->base.type;
     mp_set_init(&other->set, self->set.alloc);
     other->set.used = self->set.used;
@@ -365,7 +362,7 @@ STATIC mp_obj_t set_pop(mp_obj_t self_in) {
     mp_obj_set_t *self = MP_OBJ_TO_PTR(self_in);
     mp_obj_t obj = mp_set_remove_first(&self->set);
     if (obj == MP_OBJ_NULL) {
-        return mp_raise_msg_o(&mp_type_KeyError, "pop from an empty set");
+        mp_raise_msg(&mp_type_KeyError, "pop from an empty set");
     }
     return obj;
 }
@@ -375,7 +372,7 @@ STATIC mp_obj_t set_remove(mp_obj_t self_in, mp_obj_t item) {
     check_set(self_in);
     mp_obj_set_t *self = MP_OBJ_TO_PTR(self_in);
     if (mp_set_lookup(&self->set, item, MP_MAP_LOOKUP_REMOVE_IF_FOUND) == MP_OBJ_NULL) {
-        return mp_raise_o(mp_obj_new_exception_arg1(&mp_type_KeyError, item));
+        nlr_raise(mp_obj_new_exception_arg1(&mp_type_KeyError, item));
     }
     return mp_const_none;
 }
@@ -578,9 +575,6 @@ const mp_obj_type_t mp_type_frozenset = {
 
 mp_obj_t mp_obj_new_set(size_t n_args, mp_obj_t *items) {
     mp_obj_set_t *o = m_new_obj(mp_obj_set_t);
-    if (o == NULL) {
-        return MP_OBJ_NULL;
-    }
     o->base.type = &mp_type_set;
     mp_set_init(&o->set, n_args);
     for (size_t i = 0; i < n_args; i++) {

@@ -43,20 +43,18 @@ typedef struct _mp_obj_deque_t {
 } mp_obj_deque_t;
 
 STATIC mp_obj_t deque_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
-    if (mp_arg_check_num(n_args, n_kw, 2, 3, false)) {
-        return MP_OBJ_NULL;
-    }
+    mp_arg_check_num(n_args, n_kw, 2, 3, false);
 
     /* Initialization from existing sequence is not supported, so an empty
        tuple must be passed as such. */
     if (args[0] != mp_const_empty_tuple) {
-        return mp_raise_ValueError_o(NULL);
+        mp_raise_ValueError(NULL);
     }
 
     // Protect against -1 leading to zero-length allocation and bad array access
     mp_int_t maxlen = mp_obj_get_int(args[1]);
     if (maxlen < 0) {
-        return mp_raise_ValueError_o(NULL);
+        mp_raise_ValueError(NULL);
     }
 
     mp_obj_deque_t *o = m_new_obj(mp_obj_deque_t);
@@ -104,7 +102,7 @@ STATIC mp_obj_t mp_obj_deque_append(mp_obj_t self_in, mp_obj_t arg) {
     }
 
     if (self->flags & FLAG_CHECK_OVERFLOW && new_i_put == self->i_get) {
-        return mp_raise_msg_o(&mp_type_IndexError, "full");
+        mp_raise_msg(&mp_type_IndexError, "full");
     }
 
     self->items[self->i_put] = arg;
@@ -124,7 +122,7 @@ STATIC mp_obj_t deque_popleft(mp_obj_t self_in) {
     mp_obj_deque_t *self = MP_OBJ_TO_PTR(self_in);
 
     if (self->i_get == self->i_put) {
-        return mp_raise_msg_o(&mp_type_IndexError, "empty");
+        mp_raise_msg(&mp_type_IndexError, "empty");
     }
 
     mp_obj_t ret = self->items[self->i_get];

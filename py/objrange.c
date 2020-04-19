@@ -90,9 +90,7 @@ STATIC void range_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind
 }
 
 STATIC mp_obj_t range_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
-    if (mp_arg_check_num(n_args, n_kw, 1, 3, false)) {
-        return MP_OBJ_NULL;
-    }
+    mp_arg_check_num(n_args, n_kw, 1, 3, false);
 
     mp_obj_range_t *o = m_new_obj(mp_obj_range_t);
     o->base.type = type;
@@ -107,14 +105,9 @@ STATIC mp_obj_t range_make_new(const mp_obj_type_t *type, size_t n_args, size_t 
         if (n_args == 3) {
             o->step = mp_obj_get_int(args[2]);
             if (o->step == 0) {
-                return mp_raise_ValueError_o("zero step");
+                mp_raise_ValueError("zero step");
             }
         }
-    }
-
-    // check for errors from mp_obj_get_int
-    if (MP_STATE_THREAD(active_exception) != NULL) {
-        return MP_OBJ_NULL;
     }
 
     return MP_OBJ_FROM_PTR(o);

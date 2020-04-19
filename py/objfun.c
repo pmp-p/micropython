@@ -52,9 +52,7 @@ STATIC mp_obj_t fun_builtin_0_call(mp_obj_t self_in, size_t n_args, size_t n_kw,
     (void)args;
     assert(mp_obj_is_type(self_in, &mp_type_fun_builtin_0));
     mp_obj_fun_builtin_fixed_t *self = MP_OBJ_TO_PTR(self_in);
-    if (mp_arg_check_num(n_args, n_kw, 0, 0, false)) {
-        return MP_OBJ_NULL;
-    }
+    mp_arg_check_num(n_args, n_kw, 0, 0, false);
     return self->fun._0();
 }
 
@@ -68,9 +66,7 @@ const mp_obj_type_t mp_type_fun_builtin_0 = {
 STATIC mp_obj_t fun_builtin_1_call(mp_obj_t self_in, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     assert(mp_obj_is_type(self_in, &mp_type_fun_builtin_1));
     mp_obj_fun_builtin_fixed_t *self = MP_OBJ_TO_PTR(self_in);
-    if (mp_arg_check_num(n_args, n_kw, 1, 1, false)) {
-        return MP_OBJ_NULL;
-    }
+    mp_arg_check_num(n_args, n_kw, 1, 1, false);
     return self->fun._1(args[0]);
 }
 
@@ -84,9 +80,7 @@ const mp_obj_type_t mp_type_fun_builtin_1 = {
 STATIC mp_obj_t fun_builtin_2_call(mp_obj_t self_in, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     assert(mp_obj_is_type(self_in, &mp_type_fun_builtin_2));
     mp_obj_fun_builtin_fixed_t *self = MP_OBJ_TO_PTR(self_in);
-    if (mp_arg_check_num(n_args, n_kw, 2, 2, false)) {
-        return MP_OBJ_NULL;
-    }
+    mp_arg_check_num(n_args, n_kw, 2, 2, false);
     return self->fun._2(args[0], args[1]);
 }
 
@@ -100,9 +94,7 @@ const mp_obj_type_t mp_type_fun_builtin_2 = {
 STATIC mp_obj_t fun_builtin_3_call(mp_obj_t self_in, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     assert(mp_obj_is_type(self_in, &mp_type_fun_builtin_3));
     mp_obj_fun_builtin_fixed_t *self = MP_OBJ_TO_PTR(self_in);
-    if (mp_arg_check_num(n_args, n_kw, 3, 3, false)) {
-        return MP_OBJ_NULL;
-    }
+    mp_arg_check_num(n_args, n_kw, 3, 3, false);
     return self->fun._3(args[0], args[1], args[2]);
 }
 
@@ -118,9 +110,7 @@ STATIC mp_obj_t fun_builtin_var_call(mp_obj_t self_in, size_t n_args, size_t n_k
     mp_obj_fun_builtin_var_t *self = MP_OBJ_TO_PTR(self_in);
 
     // check number of arguments
-    if (mp_arg_check_num_sig(n_args, n_kw, self->sig)) {
-        return MP_OBJ_NULL;
-    }
+    mp_arg_check_num_sig(n_args, n_kw, self->sig);
 
     if (self->sig & 1) {
         // function allows keywords
@@ -216,20 +206,15 @@ STATIC void dump_args(const mp_obj_t *a, size_t sz) {
                            + n_exc_stack * sizeof(mp_exc_stack_t);                \
     }
 
-static inline mp_obj_t INIT_CODESTATE(mp_code_state_t *code_state, mp_obj_fun_bc_t *_fun_bc, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+#define INIT_CODESTATE(code_state, _fun_bc, n_args, n_kw, args) \
     code_state->fun_bc = _fun_bc; \
     code_state->ip = 0; \
-    // TODO can we save old_globals before this call?
-    mp_obj_t ret = mp_setup_code_state(code_state, n_args, n_kw, args); \
+    mp_setup_code_state(code_state, n_args, n_kw, args); \
     code_state->old_globals = mp_globals_get();
-    return ret;
-}
 
 #if MICROPY_STACKLESS
 mp_code_state_t *mp_obj_fun_bc_prepare_codestate(mp_obj_t self_in, size_t n_args, size_t n_kw, const mp_obj_t *args) {
-    if (MP_STACK_CHECK()) {
-        return NULL;
-    }
+    MP_STACK_CHECK();
     mp_obj_fun_bc_t *self = MP_OBJ_TO_PTR(self_in);
 
     size_t n_state, state_size;
@@ -250,16 +235,7 @@ mp_code_state_t *mp_obj_fun_bc_prepare_codestate(mp_obj_t self_in, size_t n_args
     }
     #endif
 
-    // TODO write test where this fails
-    if (INIT_CODESTATE(code_state, self, n_args, n_kw, args) == MP_OBJ_NULL) {
-        #if MICROPY_ENABLE_PYSTACK
-        mp_nonlocal_free(code_state, sizeof(mp_code_state_t));
-        #else
-        m_del_var(mp_code_state_t, byte, state_size, code_state);
-        #endif
-        // exception
-        return NULL;
-    }
+    INIT_CODESTATE(code_state, self, n_args, n_kw, args);
 
     // execute the byte code with the correct globals context
     mp_globals_set(self->globals);
@@ -269,9 +245,7 @@ mp_code_state_t *mp_obj_fun_bc_prepare_codestate(mp_obj_t self_in, size_t n_args
 #endif
 
 STATIC mp_obj_t fun_bc_call(mp_obj_t self_in, size_t n_args, size_t n_kw, const mp_obj_t *args) {
-    if (MP_STACK_CHECK()) {
-        return MP_OBJ_NULL;
-    }
+    MP_STACK_CHECK();
 
     DEBUG_printf("Input n_args: " UINT_FMT ", n_kw: " UINT_FMT "\n", n_args, n_kw);
     DEBUG_printf("Input pos args: ");
@@ -306,18 +280,7 @@ STATIC mp_obj_t fun_bc_call(mp_obj_t self_in, size_t n_args, size_t n_kw, const 
     }
     #endif
 
-    if (INIT_CODESTATE(code_state, self, n_args, n_kw, args) == MP_OBJ_NULL) {
-        // exception
-        #if MICROPY_ENABLE_PYSTACK
-        mp_pystack_free(code_state);
-        #else
-        // free the state if it was allocated on the heap
-        if (state_size != 0) {
-            m_del_var(mp_code_state_t, byte, state_size, code_state);
-        }
-        #endif
-        return MP_OBJ_NULL;
-    }
+    INIT_CODESTATE(code_state, self, n_args, n_kw, args);
 
     // execute the byte code with the correct globals context
     mp_globals_set(self->globals);
@@ -376,7 +339,7 @@ STATIC mp_obj_t fun_bc_call(mp_obj_t self_in, size_t n_args, size_t n_kw, const 
     if (vm_return_kind == MP_VM_RETURN_NORMAL) {
         return result;
     } else { // MP_VM_RETURN_EXCEPTION
-        return mp_raise_o(result);
+        nlr_raise(result);
     }
 }
 
@@ -418,9 +381,6 @@ mp_obj_t mp_obj_new_fun_bc(mp_obj_t def_args_in, mp_obj_t def_kw_args, const byt
         n_extra_args += 1;
     }
     mp_obj_fun_bc_t *o = m_new_obj_var(mp_obj_fun_bc_t, mp_obj_t, n_extra_args);
-    if (o == NULL) {
-        return MP_OBJ_NULL;
-    }
     o->base.type = &mp_type_fun_bc;
     o->globals = mp_globals_get();
     o->bytecode = code;
@@ -440,9 +400,7 @@ mp_obj_t mp_obj_new_fun_bc(mp_obj_t def_args_in, mp_obj_t def_kw_args, const byt
 #if MICROPY_EMIT_NATIVE
 
 STATIC mp_obj_t fun_native_call(mp_obj_t self_in, size_t n_args, size_t n_kw, const mp_obj_t *args) {
-    if (MP_STACK_CHECK()) {
-        return MP_OBJ_NULL;
-    }
+    MP_STACK_CHECK();
     mp_obj_fun_bc_t *self = self_in;
     mp_call_fun_t fun = MICROPY_MAKE_POINTER_CALLABLE((void*)self->bytecode);
     return fun(self_in, n_args, n_kw, args);

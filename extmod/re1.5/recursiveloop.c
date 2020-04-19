@@ -9,9 +9,8 @@ recursiveloop(char *pc, const char *sp, Subject *input, const char **subp, int n
 {
 	const char *old;
 	int off;
-	int ret;
 
-	if (re1_5_stack_chk()) return -1;
+	re1_5_stack_chk();
 
 	for(;;) {
 		if(inst_is_consumer(*pc)) {
@@ -47,14 +46,14 @@ recursiveloop(char *pc, const char *sp, Subject *input, const char **subp, int n
 			continue;
 		case Split:
 			off = (signed char)*pc++;
-			if((ret = recursiveloop(pc, sp, input, subp, nsubp)))
-				return ret;
+			if(recursiveloop(pc, sp, input, subp, nsubp))
+				return 1;
 			pc = pc + off;
 			continue;
 		case RSplit:
 			off = (signed char)*pc++;
-			if((ret = recursiveloop(pc + off, sp, input, subp, nsubp)))
-				return ret;
+			if(recursiveloop(pc + off, sp, input, subp, nsubp))
+				return 1;
 			continue;
 		case Save:
 			off = (unsigned char)*pc++;
@@ -63,8 +62,8 @@ recursiveloop(char *pc, const char *sp, Subject *input, const char **subp, int n
 			}
 			old = subp[off];
 			subp[off] = sp;
-			if((ret = recursiveloop(pc, sp, input, subp, nsubp)))
-				return ret;
+			if(recursiveloop(pc, sp, input, subp, nsubp))
+				return 1;
 			subp[off] = old;
 			return 0;
 		case Bol:

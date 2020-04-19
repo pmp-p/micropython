@@ -66,14 +66,8 @@
     #define MICROPY_NLR_XTENSA (1)
     #define MICROPY_NLR_NUM_REGS (10)
 #else
-    #if __WASM__
-        #if MICROPY_NLR_SETJMP
-            #pragma message ("That arch does not support NLR/SETJMP")
-        #endif
-    #else
-        #define MICROPY_NLR_SETJMP (1)
+    #define MICROPY_NLR_SETJMP (1)
     //#warning "No native NLR support for this arch, using setjmp implementation"
-    #endif
 #endif
 #endif
 
@@ -109,7 +103,6 @@ struct _nlr_buf_t {
 
 // Helper macro to use at the start of a specific nlr_jump implementation
 #define MP_NLR_JUMP_HEAD(val, top) \
-    nlr_jump_fail(val); \
     nlr_buf_t **_top_ptr = &MP_STATE_THREAD(nlr_top); \
     nlr_buf_t *top = *_top_ptr; \
     if (top == NULL) { \

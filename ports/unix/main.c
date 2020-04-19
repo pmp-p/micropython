@@ -75,9 +75,7 @@ const mp_print_t mp_stderr_print = {NULL, stderr_print_strn};
 // If exc is SystemExit, return value where FORCED_EXIT bit set,
 // and lower 8 bits are SystemExit value. For all other exceptions,
 // return 1.
-STATIC int handle_uncaught_exception(void) {
-    mp_obj_base_t *exc = MP_STATE_THREAD(active_exception);
-    MP_STATE_THREAD(active_exception) = NULL;
+STATIC int handle_uncaught_exception(mp_obj_base_t *exc) {
     // check for SystemExit
     if (mp_obj_is_subclass_fast(MP_OBJ_FROM_PTR(exc->type), MP_OBJ_FROM_PTR(&mp_type_SystemExit))) {
         // None is an exit value of 0; an int is its value; anything else is 1
@@ -105,7 +103,8 @@ STATIC int handle_uncaught_exception(void) {
 STATIC int execute_from_lexer(int source_kind, const void *source, mp_parse_input_kind_t input_kind, bool is_repl) {
     mp_hal_set_interrupt_char(CHAR_CTRL_C);
 
-    {
+    nlr_buf_t nlr;
+    if (nlr_push(&nlr) == 0) {
         // create lexer based on source kind
         mp_lexer_t *lex;
         if (source_kind == LEX_SRC_STR) {
@@ -118,10 +117,6 @@ STATIC int execute_from_lexer(int source_kind, const void *source, mp_parse_inpu
             lex = mp_lexer_new_from_file((const char*)source);
         } else { // LEX_SRC_STDIN
             lex = mp_lexer_new_from_fd(MP_QSTR__lt_stdin_gt_, 0, false);
-        }
-
-        if (lex == NULL) {
-            return handle_uncaught_exception();
         }
 
         qstr source_name = lex->source_name;
@@ -145,25 +140,25 @@ STATIC int execute_from_lexer(int source_kind, const void *source, mp_parse_inpu
 
         mp_obj_t module_fun = mp_compile(&parse_tree, source_name, emit_opt, is_repl);
 
-        if (!compile_only && module_fun != MP_OBJ_NULL) {
+        if (!compile_only) {
             // execute it
-            mp_obj_t ret = mp_call_function_0(module_fun);
+            mp_call_function_0(module_fun);
             // check for pending exception
-            if (ret != MP_OBJ_NULL && MP_STATE_VM(mp_pending_exception) != MP_OBJ_NULL) {
+            if (MP_STATE_VM(mp_pending_exception) != MP_OBJ_NULL) {
                 mp_obj_t obj = MP_STATE_VM(mp_pending_exception);
                 MP_STATE_VM(mp_pending_exception) = MP_OBJ_NULL;
-                mp_raise_o(obj);
+                nlr_raise(obj);
             }
         }
 
-        if (MP_STATE_THREAD(active_exception) != NULL) {
-            // uncaught exception
-            mp_hal_set_interrupt_char(-1);
-            return handle_uncaught_exception();
-        }
-
         mp_hal_set_interrupt_char(-1);
+        nlr_pop();
         return 0;
+
+    } else {
+        // uncaught exception
+        mp_hal_set_interrupt_char(-1);
+        return handle_uncaught_exception(nlr.ret_val);
     }
 }
 
@@ -385,13 +380,6 @@ STATIC void pre_process_options(int argc, char **argv) {
                     if (heap_size < 700) {
                         goto invalid_arg;
                     }
-                } else if (strncmp(argv[a + 1], "alloc-max=", sizeof("alloc-max=") - 1) == 0) {
-                    char *end;
-                    extern unsigned gc_alloc_count_max;
-                    gc_alloc_count_max = strtol(argv[a + 1] + sizeof("alloc-max=") - 1, &end, 0);
-                    if (*end != 0) {
-                        goto invalid_arg;
-                    }
 #endif
                 } else {
 invalid_arg:
@@ -461,9 +449,6 @@ MP_NOINLINE int main_(int argc, char **argv) {
     #endif
 
     mp_init();
-    if (MP_STATE_THREAD(active_exception) != NULL) {
-        return handle_uncaught_exception();
-    }
 
     #if MICROPY_VFS_POSIX
     {
@@ -497,9 +482,6 @@ MP_NOINLINE int main_(int argc, char **argv) {
         }
     }
     mp_obj_list_init(MP_OBJ_TO_PTR(mp_sys_path), path_num);
-    if (MP_STATE_THREAD(active_exception) != NULL) {
-        return handle_uncaught_exception();
-    }
     mp_obj_t *path_items;
     mp_obj_list_get(mp_sys_path, &path_num, &path_items);
     path_items[0] = MP_OBJ_NEW_QSTR(MP_QSTR_);
@@ -517,9 +499,6 @@ MP_NOINLINE int main_(int argc, char **argv) {
             vstr_init(&vstr, home_l + (p1 - p - 1) + 1);
             vstr_add_strn(&vstr, home, home_l);
             vstr_add_strn(&vstr, p + 1, p1 - p - 1);
-            if (MP_STATE_THREAD(active_exception) != NULL) {
-                return handle_uncaught_exception();
-            }
             path_items[i] = mp_obj_new_str_from_vstr(&mp_type_str, &vstr);
         } else {
             path_items[i] = mp_obj_new_str_via_qstr(p, p1 - p);
@@ -529,9 +508,6 @@ MP_NOINLINE int main_(int argc, char **argv) {
     }
 
     mp_obj_list_init(MP_OBJ_TO_PTR(mp_sys_argv), 0);
-    if (MP_STATE_THREAD(active_exception) != NULL) {
-        return handle_uncaught_exception();
-    }
 
     #if defined(MICROPY_UNIX_COVERAGE)
     {
@@ -594,13 +570,16 @@ MP_NOINLINE int main_(int argc, char **argv) {
                 set_sys_argv(argv, argc, a + 1);
 
                 mp_obj_t mod;
+                nlr_buf_t nlr;
                 bool subpkg_tried = false;
 
             reimport:
-                mod = mp_builtin___import__(MP_ARRAY_SIZE(import_args), import_args);
-                if (mod == MP_OBJ_NULL) {
+                if (nlr_push(&nlr) == 0) {
+                    mod = mp_builtin___import__(MP_ARRAY_SIZE(import_args), import_args);
+                    nlr_pop();
+                } else {
                     // uncaught exception
-                    return handle_uncaught_exception() & 0xff;
+                    return handle_uncaught_exception(nlr.ret_val) & 0xff;
                 }
 
                 if (mp_obj_is_package(mod) && !subpkg_tried) {
@@ -711,5 +690,5 @@ uint mp_import_stat(const char *path) {
 
 void nlr_jump_fail(void *val) {
     printf("FATAL: uncaught NLR %p\n", val);
-    exit(2);
+    exit(1);
 }

@@ -49,8 +49,7 @@
 uintptr_t mod_machine_mem_get_addr(mp_obj_t addr_o, uint align) {
     uintptr_t addr = mp_obj_int_get_truncated(addr_o);
     if ((addr & (align - 1)) != 0) {
-        mp_raise_o(mp_obj_new_exception_msg_varg(&mp_type_ValueError, "address %08x is not aligned to %d bytes", addr, align));
-        return 0;
+        nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError, "address %08x is not aligned to %d bytes", addr, align));
     }
     #if MICROPY_PLAT_DEV_MEM
     {
@@ -61,8 +60,7 @@ uintptr_t mod_machine_mem_get_addr(mp_obj_t addr_o, uint align) {
         if (!fd) {
             int _fd = open("/dev/mem", O_RDWR | O_SYNC);
             if (_fd == -1) {
-                mp_raise_OSError_o(errno);
-                return 0;
+                mp_raise_OSError(errno);
             }
             fd = _fd;
         }

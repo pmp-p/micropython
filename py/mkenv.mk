@@ -46,15 +46,9 @@ CAT = cat
 TOUCH = touch
 PYTHON = python3
 
-
 AS = $(CROSS_COMPILE)as
-ifdef CLANG
-CC = $(CROSS_COMPILE)clang $(SYSROOT)
-CXX = $(CROSS_COMPILE)clang++ $(SYSROOT)
-else
-CC = $(CROSS_COMPILE)gcc $(SYSROOT)
-CXX = $(CROSS_COMPILE)g++ $(SYSROOT)
-endif
+CC = $(CROSS_COMPILE)gcc
+CXX = $(CROSS_COMPILE)g++
 LD = $(CROSS_COMPILE)ld
 OBJCOPY = $(CROSS_COMPILE)objcopy
 SIZE = $(CROSS_COMPILE)size

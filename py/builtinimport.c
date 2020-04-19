@@ -132,7 +132,7 @@ STATIC mp_import_stat_t find_file(const char *file_str, uint file_len, vstr_t *d
 }
 
 #if MICROPY_MODULE_FROZEN_STR || MICROPY_ENABLE_COMPILER
-STATIC int do_load_from_lexer(mp_obj_t module_obj, mp_lexer_t *lex) {
+STATIC void do_load_from_lexer(mp_obj_t module_obj, mp_lexer_t *lex) {
     #if MICROPY_PY___FILE__
     qstr source_name = lex->source_name;
     mp_store_attr(module_obj, MP_QSTR___file__, MP_OBJ_NEW_QSTR(source_name));
@@ -140,12 +140,12 @@ STATIC int do_load_from_lexer(mp_obj_t module_obj, mp_lexer_t *lex) {
 
     // parse, compile and execute the module in its context
     mp_obj_dict_t *mod_globals = mp_obj_module_get_globals(module_obj);
-    return mp_parse_compile_execute(lex, MP_PARSE_FILE_INPUT, mod_globals, mod_globals) == MP_OBJ_NULL;
+    mp_parse_compile_execute(lex, MP_PARSE_FILE_INPUT, mod_globals, mod_globals);
 }
 #endif
 
 #if MICROPY_PERSISTENT_CODE_LOAD || MICROPY_MODULE_FROZEN_MPY
-STATIC int do_execute_raw_code(mp_obj_t module_obj, mp_raw_code_t *raw_code, const char* source_name) {
+STATIC void do_execute_raw_code(mp_obj_t module_obj, mp_raw_code_t *raw_code, const char* source_name) {
     (void)source_name;
 
     #if MICROPY_PY___FILE__
@@ -163,18 +163,25 @@ STATIC int do_execute_raw_code(mp_obj_t module_obj, mp_raw_code_t *raw_code, con
     mp_globals_set(mod_globals);
     mp_locals_set(mod_globals);
 
-    mp_obj_t module_fun = mp_make_function_from_raw_code(raw_code, MP_OBJ_NULL, MP_OBJ_NULL);
-    module_fun = mp_call_function_0(module_fun);
+    nlr_buf_t nlr;
+    if (nlr_push(&nlr) == 0) {
+        mp_obj_t module_fun = mp_make_function_from_raw_code(raw_code, MP_OBJ_NULL, MP_OBJ_NULL);
+        mp_call_function_0(module_fun);
 
-    // restore context
-    mp_globals_set(old_globals);
-    mp_locals_set(old_locals);
-
-    return module_fun == MP_OBJ_NULL;
+        // finish nlr block, restore context
+        nlr_pop();
+        mp_globals_set(old_globals);
+        mp_locals_set(old_locals);
+    } else {
+        // exception; restore context and re-raise same exception
+        mp_globals_set(old_globals);
+        mp_locals_set(old_locals);
+        nlr_jump(nlr.ret_val);
+    }
 }
 #endif
 
-STATIC int do_load(mp_obj_t module_obj, vstr_t *file) {
+STATIC void do_load(mp_obj_t module_obj, vstr_t *file) {
     #if MICROPY_MODULE_FROZEN || MICROPY_ENABLE_COMPILER || (MICROPY_PERSISTENT_CODE_LOAD && MICROPY_HAS_FILE_READER)
     char *file_str = vstr_null_terminated_str(file);
     #endif
@@ -190,7 +197,8 @@ STATIC int do_load(mp_obj_t module_obj, vstr_t *file) {
     // found the filename in the list of frozen files, then load and execute it.
     #if MICROPY_MODULE_FROZEN_STR
     if (frozen_type == MP_FROZEN_STR) {
-        return do_load_from_lexer(module_obj, modref);
+        do_load_from_lexer(module_obj, modref);
+        return;
     }
     #endif
 
@@ -198,7 +206,8 @@ STATIC int do_load(mp_obj_t module_obj, vstr_t *file) {
     // its data) in the list of frozen files, execute it.
     #if MICROPY_MODULE_FROZEN_MPY
     if (frozen_type == MP_FROZEN_MPY) {
-        return do_execute_raw_code(module_obj, modref, file_str);
+        do_execute_raw_code(module_obj, modref, file_str);
+        return;
     }
     #endif
 
@@ -207,10 +216,8 @@ STATIC int do_load(mp_obj_t module_obj, vstr_t *file) {
     #if MICROPY_HAS_FILE_READER && MICROPY_PERSISTENT_CODE_LOAD
     if (file_str[file->len - 3] == 'm') {
         mp_raw_code_t *raw_code = mp_raw_code_load_file(file_str);
-        if (raw_code == NULL) {
-            return 1;
-        }
-        return do_execute_raw_code(module_obj, raw_code, file_str);
+        do_execute_raw_code(module_obj, raw_code, file_str);
+        return;
     }
     #endif
 
@@ -218,12 +225,12 @@ STATIC int do_load(mp_obj_t module_obj, vstr_t *file) {
     #if MICROPY_ENABLE_COMPILER
     {
         mp_lexer_t *lex = mp_lexer_new_from_file(file_str);
-        return do_load_from_lexer(module_obj, lex);
+        do_load_from_lexer(module_obj, lex);
+        return;
     }
     #else
     // If we get here then the file was not frozen and we can't compile scripts.
-    mp_raise_msg_o(&mp_type_ImportError, "script compilation not supported");
-    return 1;
+    mp_raise_msg(&mp_type_ImportError, "script compilation not supported");
     #endif
 }
 
@@ -256,16 +263,13 @@ mp_obj_t mp_builtin___import__(size_t n_args, const mp_obj_t *args) {
         if (n_args >= 5) {
             level = MP_OBJ_SMALL_INT_VALUE(args[4]);
             if (level < 0) {
-                return mp_raise_ValueError_o(NULL);
+                mp_raise_ValueError(NULL);
             }
         }
     }
 
     size_t mod_len;
     const char *mod_str = mp_obj_str_get_data(module_name, &mod_len);
-    if (mod_str == NULL) {
-        return MP_OBJ_NULL;
-    }
 
     if (level != 0) {
         // What we want to do here is to take name of current module,
@@ -277,17 +281,11 @@ mp_obj_t mp_builtin___import__(size_t n_args, const mp_obj_t *args) {
         // module's position in the package hierarchy."
         level--;
         mp_obj_t this_name_q = mp_obj_dict_get(MP_OBJ_FROM_PTR(mp_globals_get()), MP_OBJ_NEW_QSTR(MP_QSTR___name__));
-        if (this_name_q == MP_OBJ_NULL) {
-            return MP_OBJ_NULL;
-        }
         assert(this_name_q != MP_OBJ_NULL);
         #if MICROPY_CPYTHON_COMPAT
         if (MP_OBJ_QSTR_VALUE(this_name_q) == MP_QSTR___main__) {
             // This is a module run by -m command-line switch, get its real name from backup attribute
             this_name_q = mp_obj_dict_get(MP_OBJ_FROM_PTR(mp_globals_get()), MP_OBJ_NEW_QSTR(MP_QSTR___main__));
-            if (this_name_q == MP_OBJ_NULL) {
-                return MP_OBJ_NULL;
-            }
         }
         #endif
         mp_map_t *globals_map = &mp_globals_get()->map;
@@ -317,7 +315,7 @@ mp_obj_t mp_builtin___import__(size_t n_args, const mp_obj_t *args) {
 
         // We must have some component left over to import from
         if (p == this_name) {
-            return mp_raise_ValueError_o("cannot perform relative import");
+            mp_raise_ValueError("cannot perform relative import");
         }
 
         uint new_mod_l = (mod_len == 0 ? (size_t)(p - this_name) : (size_t)(p - this_name) + 1 + mod_len);
@@ -400,9 +398,9 @@ mp_obj_t mp_builtin___import__(size_t n_args, const mp_obj_t *args) {
                 #endif
                     // couldn't find the file, so fail
                     if (MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_TERSE) {
-                        return mp_raise_msg_o(&mp_type_ImportError, "module not found");
+                        mp_raise_msg(&mp_type_ImportError, "module not found");
                     } else {
-                        return mp_raise_o(mp_obj_new_exception_msg_varg(&mp_type_ImportError,
+                        nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ImportError,
                             "no module named '%q'", mod_name));
                     }
                 }
@@ -446,17 +444,11 @@ mp_obj_t mp_builtin___import__(size_t n_args, const mp_obj_t *args) {
                     if (stat_file_py_or_mpy(&path) != MP_IMPORT_STAT_FILE) {
                         //mp_warning("%s is imported as namespace package", vstr_str(&path));
                     } else {
-                        if (do_load(module_obj, &path)) {
-                            // exception
-                            return MP_OBJ_NULL;
-                        }
+                        do_load(module_obj, &path);
                     }
                     path.len = orig_path_len;
                 } else { // MP_IMPORT_STAT_FILE
-                    if (do_load(module_obj, &path)) {
-                        // exception
-                        return MP_OBJ_NULL;
-                    }
+                    do_load(module_obj, &path);
                     // This should be the last component in the import path.  If there are
                     // remaining components then it's an ImportError because the current path
                     // (the module that was just loaded) is not a package.  This will be caught
@@ -488,14 +480,11 @@ mp_obj_t mp_builtin___import__(size_t n_args, const mp_obj_t *args) {
 mp_obj_t mp_builtin___import__(size_t n_args, const mp_obj_t *args) {
     // Check that it's not a relative import
     if (n_args >= 5 && MP_OBJ_SMALL_INT_VALUE(args[4]) != 0) {
-        return mp_raise_NotImplementedError_o("relative import");
+        mp_raise_NotImplementedError("relative import");
     }
 
     // Check if module already exists, and return it if it does
     qstr module_name_qstr = mp_obj_str_get_qstr(args[0]);
-    if (module_name_qstr == MP_QSTR_NULL) {
-        return MP_OBJ_NULL;
-    }
     mp_obj_t module_obj = mp_module_get(module_name_qstr);
     if (module_obj != MP_OBJ_NULL) {
         return module_obj;
@@ -513,9 +502,9 @@ mp_obj_t mp_builtin___import__(size_t n_args, const mp_obj_t *args) {
 
     // Couldn't find the module, so fail
     if (MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_TERSE) {
-        return mp_raise_msg_o(&mp_type_ImportError, "module not found");
+        mp_raise_msg(&mp_type_ImportError, "module not found");
     } else {
-        return mp_raise_o(mp_obj_new_exception_msg_varg(&mp_type_ImportError,
+        nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ImportError,
             "no module named '%q'", module_name_qstr));
     }
 }

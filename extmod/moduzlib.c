@@ -58,14 +58,10 @@ STATIC int read_src_stream(TINF_DATA *data) {
     byte c;
     mp_uint_t out_sz = stream->read(self->src_stream, &c, 1, &err);
     if (out_sz == MP_STREAM_ERROR) {
-        // TODO deal with raising exception
-        mp_raise_OSError_o(err);
-        return -1;
+        mp_raise_OSError(err);
     }
     if (out_sz == 0) {
-        // TODO deal with raising exception
-        mp_raise_o(mp_obj_new_exception(&mp_type_EOFError));
-        return -1;
+        nlr_raise(mp_obj_new_exception(&mp_type_EOFError));
     }
     return c;
 }
@@ -96,7 +92,7 @@ STATIC mp_obj_t decompio_make_new(const mp_obj_type_t *type, size_t n_args, size
         dict_opt = uzlib_zlib_parse_header(&o->decomp);
         if (dict_opt < 0) {
 header_error:
-            return mp_raise_ValueError_o("compression header");
+            mp_raise_ValueError("compression header");
         }
         dict_sz = 1 << dict_opt;
     } else {
@@ -201,7 +197,7 @@ STATIC mp_obj_t mod_uzlib_decompress(size_t n_args, const mp_obj_t *args) {
     return res;
 
 error:
-    return mp_raise_o(mp_obj_new_exception_arg1(&mp_type_ValueError, MP_OBJ_NEW_SMALL_INT(st)));
+        nlr_raise(mp_obj_new_exception_arg1(&mp_type_ValueError, MP_OBJ_NEW_SMALL_INT(st)));
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mod_uzlib_decompress_obj, 1, 3, mod_uzlib_decompress);
 
