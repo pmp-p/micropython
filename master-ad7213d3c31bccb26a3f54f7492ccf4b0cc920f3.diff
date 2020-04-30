@@ -1,4 +1,4 @@
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/extmod/machine_mem.c	2020-04-17 13:54:02.082896230 +0200
+--- micropython-master-git/extmod/machine_mem.c	2020-04-17 13:54:02.082896230 +0200
 +++ micropython-master-no_nlr/extmod/machine_mem.c	2020-04-17 13:59:01.730858841 +0200
 @@ -42,7 +42,8 @@
  STATIC uintptr_t machine_mem_get_addr(mp_obj_t addr_o, uint align) {
@@ -30,7 +30,7 @@
          uint32_t val = mp_obj_get_int_truncated(value);
          switch (self->elem_size) {
              case 1: (*(uint8_t*)addr) = val; break;
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/extmod/machine_signal.c	2020-04-17 12:44:55.994132303 +0200
+--- micropython-master-git/extmod/machine_signal.c	2020-04-17 12:44:55.994132303 +0200
 +++ micropython-master-no_nlr/extmod/machine_signal.c	2020-04-17 12:45:36.357620240 +0200
 @@ -105,7 +105,7 @@
              }
@@ -41,7 +41,7 @@
          }
      }
  
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/extmod/modbtree.c	2020-04-17 13:54:02.082896230 +0200
+--- micropython-master-git/extmod/modbtree.c	2020-04-17 13:54:02.082896230 +0200
 +++ micropython-master-no_nlr/extmod/modbtree.c	2020-04-17 13:53:02.401700907 +0200
 @@ -58,7 +58,7 @@
  
@@ -81,7 +81,7 @@
      }
      return MP_OBJ_FROM_PTR(btree_new(db));
  }
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/extmod/modframebuf.c	2020-04-17 13:54:02.084896203 +0200
+--- micropython-master-git/extmod/modframebuf.c	2020-04-17 13:54:02.084896203 +0200
 +++ micropython-master-no_nlr/extmod/modframebuf.c	2020-04-17 12:49:58.864286104 +0200
 @@ -296,7 +296,7 @@
          case FRAMEBUF_GS8:
@@ -92,7 +92,7 @@
      }
  
      return MP_OBJ_FROM_PTR(o);
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/extmod/modubinascii.c	2020-04-17 12:44:55.996132278 +0200
+--- micropython-master-git/extmod/modubinascii.c	2020-04-17 12:44:55.996132278 +0200
 +++ micropython-master-no_nlr/extmod/modubinascii.c	2020-04-17 12:45:36.359620214 +0200
 @@ -78,7 +78,7 @@
      mp_get_buffer_raise(data, &bufinfo, MP_BUFFER_READ);
@@ -121,7 +121,7 @@
      }
  
      return mp_obj_new_str_from_vstr(&mp_type_bytes, &vstr);
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/extmod/moducryptolib.c	2020-04-17 12:44:55.996132278 +0200
+--- micropython-master-git/extmod/moducryptolib.c	2020-04-17 12:44:55.996132278 +0200
 +++ micropython-master-no_nlr/extmod/moducryptolib.c	2020-04-17 12:45:36.359620214 +0200
 @@ -225,7 +225,7 @@
              break;
@@ -181,7 +181,7 @@
          }
      }
  
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/extmod/moductypes.c	2020-04-17 12:44:55.996132278 +0200
+--- micropython-master-git/extmod/moductypes.c	2020-04-17 12:44:55.996132278 +0200
 +++ micropython-master-no_nlr/extmod/moductypes.c	2020-04-17 12:45:36.359620214 +0200
 @@ -116,8 +116,8 @@
      uint32_t flags;
@@ -277,7 +277,7 @@
              }
  
              if (t->len == 2) {
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/extmod/moduheapq.c	2020-04-17 13:54:02.084896203 +0200
+--- micropython-master-git/extmod/moduheapq.c	2020-04-17 13:54:02.084896203 +0200
 +++ micropython-master-no_nlr/extmod/moduheapq.c	2020-04-17 12:49:58.864286104 +0200
 @@ -33,7 +33,8 @@
  
@@ -323,7 +323,7 @@
      for (mp_uint_t i = heap->len / 2; i > 0;) {
          uheapq_heap_siftup(heap, --i);
      }
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/extmod/modujson.c	2020-04-17 13:54:02.084896203 +0200
+--- micropython-master-git/extmod/modujson.c	2020-04-17 13:54:02.084896203 +0200
 +++ micropython-master-no_nlr/extmod/modujson.c	2020-04-17 13:03:05.123880284 +0200
 @@ -35,7 +35,9 @@
  #if MICROPY_PY_UJSON
@@ -356,7 +356,7 @@
  }
  STATIC MP_DEFINE_CONST_FUN_OBJ_1(mod_ujson_load_obj, mod_ujson_load);
  
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/extmod/modurandom.c	2020-04-17 13:54:02.084896203 +0200
+--- micropython-master-git/extmod/modurandom.c	2020-04-17 13:54:02.084896203 +0200
 +++ micropython-master-no_nlr/extmod/modurandom.c	2020-04-17 13:55:32.001684191 +0200
 @@ -75,7 +75,7 @@
  STATIC mp_obj_t mod_urandom_getrandbits(mp_obj_t num_in) {
@@ -395,7 +395,7 @@
      }
  }
  STATIC MP_DEFINE_CONST_FUN_OBJ_1(mod_urandom_choice_obj, mod_urandom_choice);
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/extmod/modure.c	2020-04-17 13:54:02.084896203 +0200
+--- micropython-master-git/extmod/modure.c	2020-04-17 13:54:02.084896203 +0200
 +++ micropython-master-no_nlr/extmod/modure.c	2020-04-17 12:49:58.864286104 +0200
 @@ -64,7 +64,7 @@
      mp_obj_match_t *self = MP_OBJ_TO_PTR(self_in);
@@ -521,7 +521,7 @@
      }
      #if MICROPY_PY_URE_DEBUG
      if (flags & FLAG_DEBUG) {
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/extmod/modussl_axtls.c	2020-04-17 13:54:02.084896203 +0200
+--- micropython-master-git/extmod/modussl_axtls.c	2020-04-17 13:54:02.084896203 +0200
 +++ micropython-master-no_nlr/extmod/modussl_axtls.c	2020-04-17 12:53:42.569372545 +0200
 @@ -54,7 +54,7 @@
  
@@ -585,7 +585,7 @@
  }
  STATIC MP_DEFINE_CONST_FUN_OBJ_KW(mod_ssl_wrap_socket_obj, 1, mod_ssl_wrap_socket);
  
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/extmod/modutimeq.c	2020-04-17 12:44:55.998132252 +0200
+--- micropython-master-git/extmod/modutimeq.c	2020-04-17 12:44:55.998132252 +0200
 +++ micropython-master-no_nlr/extmod/modutimeq.c	2020-04-17 12:45:36.361620189 +0200
 @@ -126,7 +126,7 @@
      mp_obj_t heap_in = args[0];
@@ -622,7 +622,7 @@
      }
  
      struct qentry *item = &heap->items[0];
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/extmod/moduzlib.c	2020-04-17 13:54:02.084896203 +0200
+--- micropython-master-git/extmod/moduzlib.c	2020-04-17 13:54:02.084896203 +0200
 +++ micropython-master-no_nlr/extmod/moduzlib.c	2020-04-17 13:56:37.150806311 +0200
 @@ -58,10 +58,14 @@
      byte c;
@@ -659,7 +659,7 @@
  }
  STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mod_uzlib_decompress_obj, 1, 3, mod_uzlib_decompress);
  
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/extmod/re1.5/recursiveloop.c	2020-04-17 09:19:09.158301165 +0200
+--- micropython-master-git/extmod/re1.5/recursiveloop.c	2020-04-17 09:19:09.158301165 +0200
 +++ micropython-master-no_nlr/extmod/re1.5/recursiveloop.c	2020-04-17 12:45:36.361620189 +0200
 @@ -9,8 +9,9 @@
  {
@@ -702,7 +702,7 @@
  			subp[off] = old;
  			return 0;
  		case Bol:
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/extmod/vfs.c	2020-04-17 13:54:02.084896203 +0200
+--- micropython-master-git/extmod/vfs.c	2020-04-17 13:54:02.084896203 +0200
 +++ micropython-master-no_nlr/extmod/vfs.c	2020-04-17 12:53:42.579372412 +0200
 @@ -112,11 +112,11 @@
      assert(n_args <= PROXY_MAX_ARGS);
@@ -771,7 +771,7 @@
      }
      return mp_vfs_proxy_call(old_vfs, MP_QSTR_rename, 2, args);
  }
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/extmod/vfs_fat.c	2020-04-17 12:44:56.000132227 +0200
+--- micropython-master-git/extmod/vfs_fat.c	2020-04-17 12:44:56.000132227 +0200
 +++ micropython-master-no_nlr/extmod/vfs_fat.c	2020-04-17 12:45:36.363620164 +0200
 @@ -81,7 +81,7 @@
          // don't error out if no filesystem, to let mkfs()/mount() create one if wanted
@@ -886,7 +886,7 @@
      }
      self->blockdev.flags &= ~MP_BLOCKDEV_FLAG_NO_FILESYSTEM;
  
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/extmod/vfs_fat_file.c	2020-04-17 13:54:02.084896203 +0200
+--- micropython-master-git/extmod/vfs_fat_file.c	2020-04-17 13:54:02.084896203 +0200
 +++ micropython-master-no_nlr/extmod/vfs_fat_file.c	2020-04-17 12:53:42.569372545 +0200
 @@ -193,6 +193,9 @@
      }
@@ -907,7 +907,7 @@
      }
  
      // for 'a' mode, we must begin at the end of the file
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/extmod/vfs_lfsx.c	2020-04-17 13:54:02.084896203 +0200
+--- micropython-master-git/extmod/vfs_lfsx.c	2020-04-17 13:54:02.084896203 +0200
 +++ micropython-master-no_nlr/extmod/vfs_lfsx.c	2020-04-17 12:46:17.671095964 +0200
 @@ -123,7 +123,7 @@
          args[LFS_MAKE_ARG_readsize].u_int, args[LFS_MAKE_ARG_progsize].u_int, args[LFS_MAKE_ARG_lookahead].u_int);
@@ -999,7 +999,7 @@
      }
  
      mp_obj_tuple_t *t = MP_OBJ_TO_PTR(mp_obj_new_tuple(10, NULL));
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/extmod/vfs_lfsx_file.c	2020-04-17 12:44:56.000132227 +0200
+--- micropython-master-git/extmod/vfs_lfsx_file.c	2020-04-17 12:44:56.000132227 +0200
 +++ micropython-master-no_nlr/extmod/vfs_lfsx_file.c	2020-04-17 12:45:36.363620164 +0200
 @@ -105,7 +105,7 @@
      int ret = LFSx_API(file_opencfg)(&self->lfs, &o->file, path, flags, &o->cfg);
@@ -1010,7 +1010,7 @@
      }
  
      return MP_OBJ_FROM_PTR(o);
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/extmod/vfs_posix.c	2020-04-17 13:54:02.086896176 +0200
+--- micropython-master-git/extmod/vfs_posix.c	2020-04-17 13:54:02.086896176 +0200
 +++ micropython-master-no_nlr/extmod/vfs_posix.c	2020-04-17 13:16:01.293568560 +0200
 @@ -68,7 +68,7 @@
      mp_obj_vfs_posix_t *self = MP_OBJ_TO_PTR(self_in);
@@ -1093,7 +1093,7 @@
      }
      mp_obj_tuple_t *t = MP_OBJ_TO_PTR(mp_obj_new_tuple(10, NULL));
      t->items[0] = MP_OBJ_NEW_SMALL_INT(sb.f_bsize);
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/extmod/vfs_posix_file.c	2020-04-17 13:54:02.086896176 +0200
+--- micropython-master-git/extmod/vfs_posix_file.c	2020-04-17 13:54:02.086896176 +0200
 +++ micropython-master-no_nlr/extmod/vfs_posix_file.c	2020-04-17 13:17:04.880724979 +0200
 @@ -45,11 +45,15 @@
  #ifdef MICROPY_CPYTHON_COMPAT
@@ -1176,7 +1176,7 @@
      switch (request) {
          case MP_STREAM_FLUSH:
              MP_THREAD_GIL_EXIT();
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/lib/upytesthelper/upytesthelper.c	2020-04-17 09:19:09.172300970 +0200
+--- micropython-master-git/lib/upytesthelper/upytesthelper.c	2020-04-17 09:19:09.172300970 +0200
 +++ micropython-master-no_nlr/lib/upytesthelper/upytesthelper.c	2020-04-17 12:45:36.365620138 +0200
 @@ -96,16 +96,15 @@
      mp_obj_list_init(mp_sys_path, 0);
@@ -1203,7 +1203,7 @@
          if (mp_obj_is_subclass_fast(mp_obj_get_type(exc), &mp_type_SystemExit)) {
              // Assume that sys.exit() is called to skip the test.
              // TODO: That can be always true, we should set up convention to
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/mpy-cross/main.c	2020-04-17 13:54:02.086896176 +0200
+--- micropython-master-git/mpy-cross/main.c	2020-04-17 13:54:02.086896176 +0200
 +++ micropython-master-no_nlr/mpy-cross/main.c	2020-04-18 11:54:28.853854397 +0200
 @@ -47,11 +47,21 @@
  // Make it larger on a 64 bit machine, because pointers are larger.
@@ -1227,14 +1227,14 @@
  
  STATIC const mp_print_t mp_stderr_print = {NULL, stderr_print_strn};
  
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/ports/esp8266/boards/GENERIC_512K/mpconfigboard.mk	2020-04-17 12:44:56.014132049 +0200
+--- micropython-master-git/ports/esp8266/boards/GENERIC_512K/mpconfigboard.mk	2020-04-17 12:44:56.014132049 +0200
 +++ micropython-master-no_nlr/ports/esp8266/boards/GENERIC_512K/mpconfigboard.mk	2020-04-17 12:45:36.365620138 +0200
 @@ -1,3 +1,4 @@
  MICROPY_PY_BTREE = 0
  MICROPY_VFS_FAT = 0
  LD_FILES = boards/esp8266_512k.ld
 +FROZEN_MANIFEST = boards/manifest_minimal.py
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/ports/javascript/Makefile	2020-04-17 09:19:09.210300438 +0200
+--- micropython-master-git/ports/javascript/Makefile	2020-04-17 09:19:09.210300438 +0200
 +++ micropython-master-no_nlr/ports/javascript/Makefile	2020-04-17 12:45:36.365620138 +0200
 @@ -16,12 +16,13 @@
  CPP = clang -E
@@ -1263,7 +1263,7 @@
  
  all: $(BUILD)/micropython.js
  
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/ports/qemu-arm/main.c	2020-04-17 12:44:56.028131872 +0200
+--- micropython-master-git/ports/qemu-arm/main.c	2020-04-17 12:44:56.028131872 +0200
 +++ micropython-master-no_nlr/ports/qemu-arm/main.c	2020-04-17 12:45:36.365620138 +0200
 @@ -13,17 +13,16 @@
  #include "py/mperrno.h"
@@ -1291,7 +1291,7 @@
      }
  }
  
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/ports/qemu-arm/test_main.c	2020-04-17 13:54:02.094896068 +0200
+--- micropython-master-git/ports/qemu-arm/test_main.c	2020-04-17 13:54:02.094896068 +0200
 +++ micropython-master-no_nlr/ports/qemu-arm/test_main.c	2020-04-17 12:52:23.788423146 +0200
 @@ -43,7 +43,8 @@
  }
@@ -1303,7 +1303,7 @@
  }
  
  mp_import_stat_t mp_import_stat(const char *path) {
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/ports/unix/coverage.c	2020-04-17 13:54:02.106895906 +0200
+--- micropython-master-git/ports/unix/coverage.c	2020-04-17 13:54:02.106895906 +0200
 +++ micropython-master-no_nlr/ports/unix/coverage.c	2020-04-17 13:25:13.812243889 +0200
 @@ -238,20 +238,15 @@
          mp_printf(&mp_plat_print, "%.*s\n", (int)vstr->len, vstr->buf);
@@ -1332,7 +1332,7 @@
          }
      }
  
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/ports/unix/file.c	2020-04-17 13:54:02.106895906 +0200
+--- micropython-master-git/ports/unix/file.c	2020-04-17 13:54:02.106895906 +0200
 +++ micropython-master-no_nlr/ports/unix/file.c	2020-04-17 14:10:12.399689801 +0200
 @@ -45,10 +45,12 @@
  #endif
@@ -1412,7 +1412,7 @@
      }
      o->fd = fd;
      return MP_OBJ_FROM_PTR(o);
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/ports/unix/main.c	2020-04-17 13:54:02.106895906 +0200
+--- micropython-master-git/ports/unix/main.c	2020-04-17 13:54:02.106895906 +0200
 +++ micropython-master-no_nlr/ports/unix/main.c	2020-04-17 13:25:13.856243306 +0200
 @@ -77,7 +77,9 @@
  // If exc is SystemExit, return value where FORCED_EXIT bit set,
@@ -1564,7 +1564,7 @@
 -    exit(1);
 +    exit(2);
  }
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/ports/unix/modffi.c	2020-04-17 12:44:56.046131643 +0200
+--- micropython-master-git/ports/unix/modffi.c	2020-04-17 12:44:56.046131643 +0200
 +++ micropython-master-no_nlr/ports/unix/modffi.c	2020-04-17 12:45:36.367620113 +0200
 @@ -135,7 +135,8 @@
      }
@@ -1659,7 +1659,7 @@
  }
  
  STATIC const mp_obj_type_t ffifunc_type = {
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/ports/unix/modmachine.c	2020-04-17 13:54:02.106895906 +0200
+--- micropython-master-git/ports/unix/modmachine.c	2020-04-17 13:54:02.106895906 +0200
 +++ micropython-master-no_nlr/ports/unix/modmachine.c	2020-04-17 14:14:14.628373761 +0200
 @@ -49,7 +49,9 @@
  uintptr_t mod_machine_mem_get_addr(mp_obj_t addr_o, uint align) {
@@ -1682,8 +1682,8 @@
              }
              fd = _fd;
          }
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/ports/unix/modos.c	2020-04-17 13:54:02.106895906 +0200
-+++ micropython-master-no_nlr/ports/unix/modos.c	2020-04-17 14:12:21.377923390 +0200
+--- micropython-master-git/ports/unix/modos.c	2020-04-17 13:54:02.106895906 +0200
++++ micropython-master-no_nlr/ports/unix/modos.c	2020-04-30 23:11:28.330092915 +0200
 @@ -53,7 +53,7 @@
      MP_THREAD_GIL_EXIT();
      int res = stat(path, &sb);
@@ -1711,6 +1711,24 @@
  
      return mp_const_none;
  }
+@@ -139,7 +139,7 @@
+     int r = rename(old_path, new_path);
+     MP_THREAD_GIL_ENTER();
+ 
+-    RAISE_ERRNO(r, errno);
++    RAISE_ERRNO_O(r, errno);
+ 
+     return mp_const_none;
+ }
+@@ -152,7 +152,7 @@
+     int r = rmdir(path);
+     MP_THREAD_GIL_ENTER();
+ 
+-    RAISE_ERRNO(r, errno);
++    RAISE_ERRNO_O(r, errno);
+ 
+     return mp_const_none;
+ }
 @@ -165,7 +165,7 @@
      int r = system(cmd);
      MP_THREAD_GIL_ENTER();
@@ -1729,7 +1747,7 @@
      return mp_const_none;
  }
  STATIC MP_DEFINE_CONST_FUN_OBJ_1(mod_os_mkdir_obj, mod_os_mkdir);
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/ports/unix/modtermios.c	2020-04-17 13:54:02.106895906 +0200
+--- micropython-master-git/ports/unix/modtermios.c	2020-04-17 13:54:02.106895906 +0200
 +++ micropython-master-no_nlr/ports/unix/modtermios.c	2020-04-17 12:46:17.621096598 +0200
 @@ -38,7 +38,7 @@
      int fd = mp_obj_get_int(fd_in);
@@ -1758,7 +1776,7 @@
      return mp_const_none;
  }
  STATIC MP_DEFINE_CONST_FUN_OBJ_1(mod_termios_setraw_obj, mod_termios_setraw);
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/ports/unix/modtime.c	2020-04-17 13:54:02.106895906 +0200
+--- micropython-master-git/ports/unix/modtime.c	2020-04-17 13:54:02.106895906 +0200
 +++ micropython-master-no_nlr/ports/unix/modtime.c	2020-04-17 13:22:27.830443049 +0200
 @@ -115,7 +115,7 @@
          break;
@@ -1769,7 +1787,7 @@
  #else
      // TODO: Handle EINTR
      MP_THREAD_GIL_EXIT();
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/ports/unix/moduselect.c	2020-04-17 13:54:02.106895906 +0200
+--- micropython-master-git/ports/unix/moduselect.c	2020-04-17 13:54:02.106895906 +0200
 +++ micropython-master-no_nlr/ports/unix/moduselect.c	2020-04-17 14:13:13.081215782 +0200
 @@ -165,7 +165,7 @@
      }
@@ -1811,7 +1829,7 @@
      self->iter_cnt = n_ready;
      self->iter_idx = 0;
  
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/ports/unix/modusocket.c	2020-04-17 13:54:02.108895880 +0200
+--- micropython-master-git/ports/unix/modusocket.c	2020-04-17 13:54:02.108895880 +0200
 +++ micropython-master-no_nlr/ports/unix/modusocket.c	2020-04-17 13:46:53.916673677 +0200
 @@ -174,7 +174,7 @@
          // EINPROGRESS on a blocking socket means the operation timed out
@@ -1965,7 +1983,7 @@
      }
      vstr.len = strlen(vstr.buf);
      return mp_obj_new_str_from_vstr(&mp_type_str, &vstr);
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/ports/unix/mphalport.h	2020-04-17 12:44:56.048131618 +0200
+--- micropython-master-git/ports/unix/mphalport.h	2020-04-17 12:44:56.048131618 +0200
 +++ micropython-master-no_nlr/ports/unix/mphalport.h	2020-04-17 12:45:36.371620062 +0200
 @@ -54,6 +54,9 @@
  static inline void mp_hal_delay_us(mp_uint_t us) { usleep(us); }
@@ -1979,7 +1997,7 @@
 +#define RAISE_ERRNO_R(err_flag, error_val, ret_on_err) \
 +    { if (err_flag == -1) \
 +        { mp_raise_OSError_o(error_val); return ret_on_err; } }
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/ports/unix/mpthreadport.c	2020-04-17 13:54:02.108895880 +0200
+--- micropython-master-git/ports/unix/mpthreadport.c	2020-04-17 13:54:02.108895880 +0200
 +++ micropython-master-no_nlr/ports/unix/mpthreadport.c	2020-04-17 13:18:50.709321350 +0200
 @@ -228,7 +228,8 @@
      return;
@@ -1991,7 +2009,7 @@
  }
  
  void mp_thread_finish(void) {
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/argcheck.c	2020-04-17 13:54:02.110895852 +0200
+--- micropython-master-git/py/argcheck.c	2020-04-17 13:54:02.110895852 +0200
 +++ micropython-master-no_nlr/py/argcheck.c	2020-04-17 12:45:36.371620062 +0200
 @@ -29,7 +29,7 @@
  
@@ -2114,7 +2132,7 @@
 +    mp_raise_NotImplementedError_o("keyword argument(s) not yet implemented - use normal args instead");
  }
  #endif
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/bc.c	2020-04-17 13:54:02.110895852 +0200
+--- micropython-master-git/py/bc.c	2020-04-17 13:54:02.110895852 +0200
 +++ micropython-master-no_nlr/py/bc.c	2020-04-17 12:45:36.371620062 +0200
 @@ -40,7 +40,8 @@
  #define DEBUG_printf(...) (void)0
@@ -2246,7 +2264,7 @@
  }
  
  #if MICROPY_PERSISTENT_CODE_LOAD || MICROPY_PERSISTENT_CODE_SAVE
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/bc.h	2020-04-17 13:54:02.110895852 +0200
+--- micropython-master-git/py/bc.h	2020-04-17 13:54:02.110895852 +0200
 +++ micropython-master-no_nlr/py/bc.h	2020-04-17 12:48:19.591547764 +0200
 @@ -225,7 +225,7 @@
  
@@ -2257,7 +2275,7 @@
  void mp_bytecode_print(const void *descr, const byte *code, mp_uint_t len, const mp_uint_t *const_table);
  void mp_bytecode_print2(const byte *code, size_t len, const mp_uint_t *const_table);
  const byte *mp_bytecode_print_str(const byte *ip);
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/binary.c	2020-04-17 12:44:56.052131568 +0200
+--- micropython-master-git/py/binary.c	2020-04-17 12:44:56.052131568 +0200
 +++ micropython-master-no_nlr/py/binary.c	2020-04-17 12:45:36.371620062 +0200
 @@ -104,7 +104,8 @@
      }
@@ -2269,7 +2287,7 @@
      }
  
      if (palign != NULL) {
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/builtinevex.c	2020-04-17 12:44:56.052131568 +0200
+--- micropython-master-git/py/builtinevex.c	2020-04-17 12:44:56.052131568 +0200
 +++ micropython-master-no_nlr/py/builtinevex.c	2020-04-17 12:45:36.371620062 +0200
 @@ -58,19 +58,10 @@
      }
@@ -2332,7 +2350,7 @@
      return mp_parse_compile_execute(lex, parse_input_kind, globals, locals);
  }
  
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/builtinimport.c	2020-04-17 13:54:02.110895852 +0200
+--- micropython-master-git/py/builtinimport.c	2020-04-17 13:54:02.110895852 +0200
 +++ micropython-master-no_nlr/py/builtinimport.c	2020-04-17 12:46:17.685095786 +0200
 @@ -132,7 +132,7 @@
  }
@@ -2549,7 +2567,7 @@
      }
  }
  
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/compile.c	2020-04-17 13:54:02.112895825 +0200
+--- micropython-master-git/py/compile.c	2020-04-17 13:54:02.112895825 +0200
 +++ micropython-master-no_nlr/py/compile.c	2020-04-17 13:22:27.806443367 +0200
 @@ -241,6 +241,9 @@
  
@@ -2631,7 +2649,7 @@
      // return function that executes the outer module
      return mp_make_function_from_raw_code(rc, MP_OBJ_NULL, MP_OBJ_NULL);
  }
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/emitcommon.c	2020-04-17 09:19:09.270299599 +0200
+--- micropython-master-git/py/emitcommon.c	2020-04-17 09:19:09.270299599 +0200
 +++ micropython-master-no_nlr/py/emitcommon.c	2020-04-17 12:45:36.373620037 +0200
 @@ -33,6 +33,9 @@
  void mp_emit_common_get_id_for_modification(scope_t *scope, qstr qst) {
@@ -2643,7 +2661,7 @@
      if (SCOPE_IS_FUNC_LIKE(scope->kind) && id->kind == ID_INFO_KIND_GLOBAL_IMPLICIT) {
          // rebind as a local variable
          id->kind = ID_INFO_KIND_LOCAL;
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/emitglue.c	2020-04-17 12:44:56.054131542 +0200
+--- micropython-master-git/py/emitglue.c	2020-04-17 12:44:56.054131542 +0200
 +++ micropython-master-no_nlr/py/emitglue.c	2020-04-17 12:45:36.373620037 +0200
 @@ -52,6 +52,9 @@
  
@@ -2655,7 +2673,7 @@
      rc->kind = MP_CODE_RESERVED;
      #if MICROPY_PY_SYS_SETTRACE
      rc->line_of_definition = 0;
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/emitnative.c	2020-04-17 13:54:02.114895799 +0200
+--- micropython-master-git/py/emitnative.c	2020-04-17 13:54:02.114895799 +0200
 +++ micropython-master-no_nlr/py/emitnative.c	2020-04-18 11:44:15.928206027 +0200
 @@ -137,6 +137,9 @@
          *emit->error_slot = mp_obj_new_exception_msg_varg(&mp_type_ViperTypeError, __VA_ARGS__); \
@@ -3071,9 +3089,24 @@
          // Pop exhausted gen, replace with ret_value
          emit_native_adjust_stack_size(emit, 1); // ret_value
          emit_fold_stack_top(emit, REG_ARG_1);
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/gc.c	2020-04-17 13:54:02.114895799 +0200
-+++ micropython-master-no_nlr/py/gc.c	2020-04-17 13:05:28.057979191 +0200
-@@ -434,6 +434,9 @@
+--- micropython-master-git/py/gc.c	2020-04-17 13:54:02.114895799 +0200
++++ micropython-master-no_nlr/py/gc.c	2020-04-30 18:08:55.517847939 +0200
+@@ -329,10 +329,13 @@
+     // correctly in the mp_state_ctx structure.  We scan nlr_top, dict_locals,
+     // dict_globals, then the root pointer section of mp_state_vm.
+     void **ptrs = (void**)(void*)&mp_state_ctx;
++#if !defined(__EMSCRIPTEN__)
+     size_t root_start = offsetof(mp_state_ctx_t, thread.dict_locals);
+     size_t root_end = offsetof(mp_state_ctx_t, vm.qstr_last_chunk);
+     gc_collect_root(ptrs + root_start / sizeof(void*), (root_end - root_start) / sizeof(void*));
+-
++#else
++    #pragma message "gc_collect_root : root collection turned off"
++#endif
+     #if MICROPY_ENABLE_PYSTACK
+     // Trace root pointers from the Python stack.
+     ptrs = (void**)(void*)MP_STATE_THREAD(pystack_start);
+@@ -434,6 +437,9 @@
      GC_EXIT();
  }
  
@@ -3083,7 +3116,7 @@
  void *gc_alloc(size_t n_bytes, unsigned int alloc_flags) {
      bool has_finaliser = alloc_flags & GC_ALLOC_FLAG_HAS_FINALISER;
      size_t n_blocks = ((n_bytes + BYTES_PER_BLOCK - 1) & (~(BYTES_PER_BLOCK - 1))) / BYTES_PER_BLOCK;
-@@ -452,6 +455,16 @@
+@@ -452,6 +458,16 @@
          return NULL;
      }
  
@@ -3100,7 +3133,7 @@
      size_t i;
      size_t end_block;
      size_t start_block;
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/lexer.c	2020-04-17 12:44:56.056131516 +0200
+--- micropython-master-git/py/lexer.c	2020-04-17 12:44:56.056131516 +0200
 +++ micropython-master-no_nlr/py/lexer.c	2020-04-17 12:45:36.375620011 +0200
 @@ -342,7 +342,8 @@
                              // 3MB of text; even gzip-compressed and with minimal structure, it'll take
@@ -3153,7 +3186,7 @@
      return mp_lexer_new(qstr_from_str(filename), reader);
  }
  
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/malloc.c	2020-04-17 12:44:56.056131516 +0200
+--- micropython-master-git/py/malloc.c	2020-04-17 12:44:56.056131516 +0200
 +++ micropython-master-no_nlr/py/malloc.c	2020-04-17 12:45:36.375620011 +0200
 @@ -85,7 +85,7 @@
  void *m_malloc(size_t num_bytes) {
@@ -3182,7 +3215,7 @@
      }
  #if MICROPY_MEM_STATS
      // At first thought, "Total bytes allocated" should only grow,
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/map.c	2020-04-17 12:44:56.058131491 +0200
+--- micropython-master-git/py/map.c	2020-04-17 12:44:56.058131491 +0200
 +++ micropython-master-no_nlr/py/map.c	2020-04-17 12:45:36.375620011 +0200
 @@ -118,12 +118,15 @@
      map->table = NULL;
@@ -3275,7 +3308,7 @@
      size_t pos = hash % set->alloc;
      size_t start_pos = pos;
      mp_obj_t *avail_slot = NULL;
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/misc.h	2020-04-17 13:54:02.114895799 +0200
+--- micropython-master-git/py/misc.h	2020-04-17 13:54:02.114895799 +0200
 +++ micropython-master-no_nlr/py/misc.h	2020-04-17 13:05:27.965980414 +0200
 @@ -97,7 +97,7 @@
  void *m_realloc_maybe(void *ptr, size_t new_num_bytes, bool allow_move);
@@ -3297,7 +3330,7 @@
  void vstr_ins_byte(vstr_t *vstr, size_t byte_pos, byte b);
  void vstr_ins_char(vstr_t *vstr, size_t char_pos, unichar chr);
  void vstr_cut_head_bytes(vstr_t *vstr, size_t bytes_to_cut);
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/modbuiltins.c	2020-04-17 13:54:02.114895799 +0200
+--- micropython-master-git/py/modbuiltins.c	2020-04-17 13:54:02.114895799 +0200
 +++ micropython-master-no_nlr/py/modbuiltins.c	2020-04-17 13:27:35.832357456 +0200
 @@ -97,11 +97,14 @@
      mp_obj_iter_buf_t iter_buf;
@@ -3508,7 +3541,7 @@
      return mp_obj_new_bool(dest[0] != MP_OBJ_NULL);
  }
  MP_DEFINE_CONST_FUN_OBJ_2(mp_builtin_hasattr_obj, mp_builtin_hasattr);
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/modmath.c	2020-04-17 12:44:56.058131491 +0200
+--- micropython-master-git/py/modmath.c	2020-04-17 12:44:56.058131491 +0200
 +++ micropython-master-no_nlr/py/modmath.c	2020-04-17 12:45:36.377619986 +0200
 @@ -35,15 +35,15 @@
  // And by defining our own we can ensure it uses the correct const format.
@@ -3586,7 +3619,7 @@
      } else if (max <= 1) {
          return MP_OBJ_NEW_SMALL_INT(1);
      }
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/modmicropython.c	2020-04-17 12:44:56.058131491 +0200
+--- micropython-master-git/py/modmicropython.c	2020-04-17 12:44:56.058131491 +0200
 +++ micropython-master-no_nlr/py/modmicropython.c	2020-04-17 12:45:36.377619986 +0200
 @@ -150,7 +150,7 @@
  #if MICROPY_ENABLE_SCHEDULER
@@ -3597,7 +3630,7 @@
      }
      return mp_const_none;
  }
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/modstruct.c	2020-04-17 12:44:56.058131491 +0200
+--- micropython-master-git/py/modstruct.c	2020-04-17 12:44:56.058131491 +0200
 +++ micropython-master-no_nlr/py/modstruct.c	2020-04-17 12:45:36.377619986 +0200
 @@ -99,6 +99,9 @@
              total_cnt += cnt;
@@ -3690,7 +3723,7 @@
      }
  
      struct_pack_into_internal(args[0], p, n_args - 3, &args[3]);
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/modsys.c	2020-04-17 12:44:56.058131491 +0200
+--- micropython-master-git/py/modsys.c	2020-04-17 12:44:56.058131491 +0200
 +++ micropython-master-no_nlr/py/modsys.c	2020-04-17 12:45:36.377619986 +0200
 @@ -116,7 +116,7 @@
      } else {
@@ -3712,7 +3745,7 @@
          stream_obj = MP_OBJ_TO_PTR(args[1]);
      }
  
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/modthread.c	2020-04-17 13:54:02.114895799 +0200
+--- micropython-master-git/py/modthread.c	2020-04-17 13:54:02.114895799 +0200
 +++ micropython-master-no_nlr/py/modthread.c	2020-04-17 13:46:29.846998780 +0200
 @@ -77,7 +77,7 @@
          self->locked = true;
@@ -3778,7 +3811,7 @@
  }
  STATIC MP_DEFINE_CONST_FUN_OBJ_0(mod_thread_exit_obj, mod_thread_exit);
  
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/mpconfig.h	2020-04-17 13:54:02.114895799 +0200
+--- micropython-master-git/py/mpconfig.h	2020-04-17 13:54:02.114895799 +0200
 +++ micropython-master-no_nlr/py/mpconfig.h	2020-04-17 13:25:13.814243862 +0200
 @@ -438,8 +438,9 @@
  #endif
@@ -3791,7 +3824,7 @@
  #endif
  
  // Whether to enable a simple VM stack overflow check
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/mpstate.h	2020-04-17 13:54:02.114895799 +0200
+--- micropython-master-git/py/mpstate.h	2020-04-17 13:54:02.114895799 +0200
 +++ micropython-master-no_nlr/py/mpstate.h	2020-04-17 13:05:28.061979138 +0200
 @@ -257,6 +257,8 @@
      mp_obj_dict_t *dict_locals;
@@ -3802,7 +3835,7 @@
      nlr_buf_t *nlr_top;
  
      #if MICROPY_PY_SYS_SETTRACE
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/nativeglue.c	2020-04-17 13:54:02.114895799 +0200
+--- micropython-master-git/py/nativeglue.c	2020-04-17 13:54:02.114895799 +0200
 +++ micropython-master-no_nlr/py/nativeglue.c	2020-04-17 13:18:50.703321429 +0200
 @@ -143,10 +143,27 @@
  
@@ -3906,7 +3939,7 @@
      mp_import_name,
      mp_import_from,
      mp_import_all,
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/nlr.h	2020-04-17 12:44:56.060131466 +0200
+--- micropython-master-git/py/nlr.h	2020-04-17 12:44:56.060131466 +0200
 +++ micropython-master-no_nlr/py/nlr.h	2020-04-17 12:45:36.379619961 +0200
 @@ -115,6 +115,7 @@
  
@@ -3916,7 +3949,7 @@
      nlr_buf_t **_top_ptr = &MP_STATE_THREAD(nlr_top); \
      nlr_buf_t *top = *_top_ptr; \
      if (top == NULL) { \
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objarray.c	2020-04-17 13:54:02.116895771 +0200
+--- micropython-master-git/py/objarray.c	2020-04-17 13:54:02.116895771 +0200
 +++ micropython-master-no_nlr/py/objarray.c	2020-04-17 13:25:13.842243491 +0200
 @@ -95,7 +95,13 @@
  #if MICROPY_PY_BUILTINS_BYTEARRAY || MICROPY_PY_ARRAY
@@ -4145,7 +4178,7 @@
              #if MICROPY_PY_BUILTINS_MEMORYVIEW
              if (o->base.type == &mp_type_memoryview) {
                  index += o->memview_offset;
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/obj.c	2020-04-17 13:54:02.116895771 +0200
+--- micropython-master-git/py/obj.c	2020-04-17 13:54:02.116895771 +0200
 +++ micropython-master-no_nlr/py/obj.c	2020-04-17 13:46:53.918673650 +0200
 @@ -101,7 +101,9 @@
  
@@ -4337,7 +4370,7 @@
  }
  
  mp_obj_t mp_generic_unary_op(mp_unary_op_t op, mp_obj_t o_in) {
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objcomplex.c	2020-04-17 13:54:02.116895771 +0200
+--- micropython-master-git/py/objcomplex.c	2020-04-17 13:54:02.116895771 +0200
 +++ micropython-master-no_nlr/py/objcomplex.c	2020-04-17 13:25:13.842243491 +0200
 @@ -173,7 +173,9 @@
  
@@ -4375,7 +4408,7 @@
                  }
              } else {
                  mp_float_t ln1 = MICROPY_FLOAT_C_FUN(log)(abs1);
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objdeque.c	2020-04-17 12:44:56.062131440 +0200
+--- micropython-master-git/py/objdeque.c	2020-04-17 12:44:56.062131440 +0200
 +++ micropython-master-no_nlr/py/objdeque.c	2020-04-17 12:45:36.379619961 +0200
 @@ -43,18 +43,20 @@
  } mp_obj_deque_t;
@@ -4419,7 +4452,7 @@
      }
  
      mp_obj_t ret = self->items[self->i_get];
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objdict.c	2020-04-17 12:44:56.062131440 +0200
+--- micropython-master-git/py/objdict.c	2020-04-17 12:44:56.062131440 +0200
 +++ micropython-master-no_nlr/py/objdict.c	2020-04-17 12:45:36.379619961 +0200
 @@ -101,7 +101,9 @@
          mp_obj_t args2[2] = {dict_out, args[0]}; // args[0] is always valid, even if it's not a positional arg
@@ -4599,7 +4632,7 @@
 +    }
      return self_in;
  }
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objenumerate.c	2020-04-17 13:54:02.116895771 +0200
+--- micropython-master-git/py/objenumerate.c	2020-04-17 13:54:02.116895771 +0200
 +++ micropython-master-no_nlr/py/objenumerate.c	2020-04-17 12:48:19.579547916 +0200
 @@ -50,8 +50,10 @@
      struct {
@@ -4624,7 +4657,7 @@
      if (next == MP_OBJ_STOP_ITERATION) {
          return MP_OBJ_STOP_ITERATION;
      } else {
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objfilter.c	2020-04-17 09:19:09.278299486 +0200
+--- micropython-master-git/py/objfilter.c	2020-04-17 09:19:09.278299486 +0200
 +++ micropython-master-no_nlr/py/objfilter.c	2020-04-17 12:45:36.379619961 +0200
 @@ -47,7 +47,7 @@
      mp_check_self(mp_obj_is_type(self_in, &mp_type_filter));
@@ -4645,7 +4678,7 @@
      return MP_OBJ_STOP_ITERATION;
  }
  
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objfloat.c	2020-04-17 13:54:02.116895771 +0200
+--- micropython-master-git/py/objfloat.c	2020-04-17 13:54:02.116895771 +0200
 +++ micropython-master-no_nlr/py/objfloat.c	2020-04-17 13:25:13.842243491 +0200
 @@ -130,7 +130,9 @@
  
@@ -4689,7 +4722,7 @@
                  #endif
              }
              lhs_val = MICROPY_FLOAT_C_FUN(pow)(lhs_val, rhs_val);
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objfun.c	2020-04-17 13:54:02.116895771 +0200
+--- micropython-master-git/py/objfun.c	2020-04-17 13:54:02.116895771 +0200
 +++ micropython-master-no_nlr/py/objfun.c	2020-04-17 13:03:05.123880284 +0200
 @@ -52,7 +52,9 @@
      (void)args;
@@ -4850,7 +4883,7 @@
      mp_obj_fun_bc_t *self = self_in;
      mp_call_fun_t fun = MICROPY_MAKE_POINTER_CALLABLE((void*)self->bytecode);
      return fun(self_in, n_args, n_kw, args);
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objgenerator.c	2020-04-17 13:54:02.116895771 +0200
+--- micropython-master-git/py/objgenerator.c	2020-04-17 13:54:02.116895771 +0200
 +++ micropython-master-no_nlr/py/objgenerator.c	2020-04-17 15:19:34.447846149 +0200
 @@ -67,6 +67,7 @@
      o->code_state.fun_bc = self_fun;
@@ -4989,7 +5022,7 @@
      }
      mp_obj_t prev = self->pend_exc;
      self->pend_exc = exc_in;
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objgetitemiter.c	2020-04-17 12:44:56.062131440 +0200
+--- micropython-master-git/py/objgetitemiter.c	2020-04-17 12:44:56.062131440 +0200
 +++ micropython-master-no_nlr/py/objgetitemiter.c	2020-04-17 12:45:36.381619935 +0200
 @@ -37,24 +37,22 @@
  
@@ -5024,7 +5057,7 @@
  }
  
  STATIC const mp_obj_type_t it_type = {
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/obj.h	2020-04-17 13:54:02.116895771 +0200
+--- micropython-master-git/py/obj.h	2020-04-17 13:54:02.116895771 +0200
 +++ micropython-master-no_nlr/py/obj.h	2020-04-18 11:52:19.761613027 +0200
 @@ -497,7 +497,7 @@
      mp_int_t (*get_buffer)(mp_obj_t obj, mp_buffer_info_t *bufinfo, mp_uint_t flags);
@@ -5056,7 +5089,7 @@
  #endif
  #define mp_seq_copy(dest, src, len, item_t) memcpy(dest, src, len * sizeof(item_t))
  #define mp_seq_cat(dest, src1, len1, src2, len2, item_t) { memcpy(dest, src1, (len1) * sizeof(item_t)); memcpy(dest + (len1), src2, (len2) * sizeof(item_t)); }
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objint.c	2020-04-17 12:44:56.062131440 +0200
+--- micropython-master-git/py/objint.c	2020-04-17 12:44:56.062131440 +0200
 +++ micropython-master-no_nlr/py/objint.c	2020-04-17 12:45:36.381619935 +0200
 @@ -137,9 +137,12 @@
  mp_obj_t mp_obj_new_int_from_float(mp_float_t val) {
@@ -5134,7 +5167,7 @@
      }
      bool big_endian = args[2] != MP_OBJ_NEW_QSTR(MP_QSTR_little);
  
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objint_mpz.c	2020-04-17 13:54:02.116895771 +0200
+--- micropython-master-git/py/objint_mpz.c	2020-04-17 13:54:02.116895771 +0200
 +++ micropython-master-no_nlr/py/objint_mpz.c	2020-04-17 13:05:28.009979829 +0200
 @@ -225,7 +225,7 @@
              case MP_BINARY_OP_INPLACE_FLOOR_DIVIDE: {
@@ -5177,7 +5210,7 @@
          }
      }
  }
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objlist.c	2020-04-17 13:54:02.118895744 +0200
+--- micropython-master-git/py/objlist.c	2020-04-17 13:54:02.118895744 +0200
 +++ micropython-master-no_nlr/py/objlist.c	2020-04-17 12:53:42.573372492 +0200
 @@ -60,8 +60,13 @@
  STATIC mp_obj_t list_extend_from_iter(mp_obj_t list, mp_obj_t iterable) {
@@ -5400,7 +5433,7 @@
          for (size_t i = 0; i < n; i++) {
              o->items[i] = items[i];
          }
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objlist.h	2020-04-17 09:19:09.278299486 +0200
+--- micropython-master-git/py/objlist.h	2020-04-17 09:19:09.278299486 +0200
 +++ micropython-master-no_nlr/py/objlist.h	2020-04-17 12:45:36.383619910 +0200
 @@ -35,6 +35,6 @@
      mp_obj_t *items;
@@ -5410,7 +5443,7 @@
 +mp_obj_list_t *mp_obj_list_init(mp_obj_list_t *o, size_t n);
  
  #endif // MICROPY_INCLUDED_PY_OBJLIST_H
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objmap.c	2020-04-17 09:19:09.278299486 +0200
+--- micropython-master-git/py/objmap.c	2020-04-17 09:19:09.278299486 +0200
 +++ micropython-master-no_nlr/py/objmap.c	2020-04-17 12:45:36.383619910 +0200
 @@ -59,6 +59,10 @@
              m_del(mp_obj_t, nextses, self->n_iters);
@@ -5423,7 +5456,7 @@
          nextses[i] = next;
      }
      return mp_call_function_n_kw(self->fun, self->n_iters, 0, nextses);
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objnamedtuple.c	2020-04-17 13:54:02.118895744 +0200
+--- micropython-master-git/py/objnamedtuple.c	2020-04-17 13:54:02.118895744 +0200
 +++ micropython-master-no_nlr/py/objnamedtuple.c	2020-04-17 13:25:13.842243491 +0200
 @@ -87,7 +87,7 @@
      } else {
@@ -5488,7 +5521,7 @@
      return mp_obj_new_namedtuple_type(name, n_fields, fields);
  }
  MP_DEFINE_CONST_FUN_OBJ_2(mp_namedtuple_obj, new_namedtuple_type);
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objobject.c	2020-04-17 13:54:02.118895744 +0200
+--- micropython-master-git/py/objobject.c	2020-04-17 13:54:02.118895744 +0200
 +++ micropython-master-no_nlr/py/objobject.c	2020-04-17 12:53:42.581372385 +0200
 @@ -50,7 +50,7 @@
  
@@ -5499,7 +5532,7 @@
      }
      // This executes only "__new__" part of instance creation.
      // TODO: This won't work well for classes with native bases.
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objrange.c	2020-04-17 12:44:56.064131415 +0200
+--- micropython-master-git/py/objrange.c	2020-04-17 12:44:56.064131415 +0200
 +++ micropython-master-no_nlr/py/objrange.c	2020-04-17 12:45:36.385619884 +0200
 @@ -90,7 +90,9 @@
  }
@@ -5530,7 +5563,7 @@
      return MP_OBJ_FROM_PTR(o);
  }
  
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objset.c	2020-04-17 13:54:02.118895744 +0200
+--- micropython-master-git/py/objset.c	2020-04-17 13:54:02.118895744 +0200
 +++ micropython-master-no_nlr/py/objset.c	2020-04-17 13:25:13.842243491 +0200
 @@ -175,6 +175,9 @@
      check_set_or_frozenset(self_in);
@@ -5570,7 +5603,7 @@
      o->base.type = &mp_type_set;
      mp_set_init(&o->set, n_args);
      for (size_t i = 0; i < n_args; i++) {
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objslice.c	2020-04-17 13:54:02.118895744 +0200
+--- micropython-master-git/py/objslice.c	2020-04-17 13:54:02.118895744 +0200
 +++ micropython-master-no_nlr/py/objslice.c	2020-04-17 13:03:05.091880709 +0200
 @@ -105,6 +105,9 @@
  
@@ -5582,7 +5615,7 @@
      o->base.type = &mp_type_slice;
      o->start = ostart;
      o->stop = ostop;
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objstr.c	2020-04-17 13:54:02.118895744 +0200
+--- micropython-master-git/py/objstr.c	2020-04-17 13:54:02.118895744 +0200
 +++ micropython-master-no_nlr/py/objstr.c	2020-04-17 13:07:01.042743039 +0200
 @@ -39,7 +39,7 @@
  #endif
@@ -6243,7 +6276,7 @@
      }
  }
  
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objstringio.c	2020-04-17 13:54:02.118895744 +0200
+--- micropython-master-git/py/objstringio.c	2020-04-17 13:54:02.118895744 +0200
 +++ micropython-master-no_nlr/py/objstringio.c	2020-04-17 12:46:17.693095684 +0200
 @@ -36,13 +36,15 @@
  #if MICROPY_PY_IO
@@ -6297,7 +6330,7 @@
      // TODO: Try to avoid copying string
      return mp_obj_new_str_of_type(STREAM_TO_CONTENT_TYPE(self), (byte*)self->vstr->buf, self->vstr->len);
  }
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objstrunicode.c	2020-04-17 13:54:02.120895718 +0200
+--- micropython-master-git/py/objstrunicode.c	2020-04-17 13:54:02.120895718 +0200
 +++ micropython-master-no_nlr/py/objstrunicode.c	2020-04-17 13:03:05.125880257 +0200
 @@ -129,7 +129,8 @@
      if (mp_obj_is_small_int(index)) {
@@ -6348,7 +6381,7 @@
          int len = 1;
          if (UTF8_IS_NONASCII(*s)) {
              // Count the number of 1 bits (after the first)
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objtuple.c	2020-04-17 13:54:02.120895718 +0200
+--- micropython-master-git/py/objtuple.c	2020-04-17 13:54:02.120895718 +0200
 +++ micropython-master-no_nlr/py/objtuple.c	2020-04-17 13:03:05.125880257 +0200
 @@ -86,13 +86,16 @@
  
@@ -6399,7 +6432,7 @@
      o->base.type = &mp_type_tuple;
      o->len = n;
      if (items) {
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objtype.c	2020-04-17 13:54:02.120895718 +0200
+--- micropython-master-git/py/objtype.c	2020-04-17 13:54:02.120895718 +0200
 +++ micropython-master-no_nlr/py/objtype.c	2020-04-17 13:25:13.842243491 +0200
 @@ -349,10 +349,10 @@
          }
@@ -6582,7 +6615,7 @@
      }
      return mp_obj_is_subclass(object, classinfo);
  }
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/objzip.c	2020-04-17 09:19:09.282299431 +0200
+--- micropython-master-git/py/objzip.c	2020-04-17 09:19:09.282299431 +0200
 +++ micropython-master-no_nlr/py/objzip.c	2020-04-17 12:45:36.387619859 +0200
 @@ -58,6 +58,10 @@
  
@@ -6595,7 +6628,7 @@
          if (next == MP_OBJ_STOP_ITERATION) {
              mp_obj_tuple_del(MP_OBJ_FROM_PTR(tuple));
              return MP_OBJ_STOP_ITERATION;
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/parse.c	2020-04-17 12:44:56.066131390 +0200
+--- micropython-master-git/py/parse.c	2020-04-17 12:44:56.066131390 +0200
 +++ micropython-master-no_nlr/py/parse.c	2020-04-17 12:45:36.389619834 +0200
 @@ -280,6 +280,9 @@
              alloc = num_bytes;
@@ -6678,7 +6711,7 @@
      }
  
      // get the root parse node that we created
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/parsenum.c	2020-04-17 12:44:56.066131390 +0200
+--- micropython-master-git/py/parsenum.c	2020-04-17 12:44:56.066131390 +0200
 +++ micropython-master-no_nlr/py/parsenum.c	2020-04-17 12:45:36.389619834 +0200
 @@ -36,14 +36,14 @@
  #include <math.h>
@@ -6750,7 +6783,7 @@
 +    return raise_exc(mp_obj_new_exception_msg(&mp_type_ValueError, "decimal numbers not supported"), lex);
  #endif
  }
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/persistentcode.c	2020-04-17 13:54:02.120895718 +0200
+--- micropython-master-git/py/persistentcode.c	2020-04-17 13:54:02.120895718 +0200
 +++ micropython-master-no_nlr/py/persistentcode.c	2020-04-17 13:17:36.606304140 +0200
 @@ -540,12 +540,14 @@
          || MPY_FEATURE_DECODE_FLAGS(header[2]) != MPY_FEATURE_FLAGS
@@ -6769,7 +6802,7 @@
          }
      }
      qstr_window_t qw;
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/qstr.c	2020-04-17 13:54:02.120895718 +0200
+--- micropython-master-git/py/qstr.c	2020-04-17 13:54:02.120895718 +0200
 +++ micropython-master-no_nlr/py/qstr.c	2020-04-17 13:05:28.061979138 +0200
 @@ -155,6 +155,7 @@
          if (pool == NULL) {
@@ -6787,7 +6820,7 @@
                  }
                  al = n_bytes;
              }
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/reader.c	2020-04-17 13:54:02.120895718 +0200
+--- micropython-master-git/py/reader.c	2020-04-17 13:54:02.120895718 +0200
 +++ micropython-master-no_nlr/py/reader.c	2020-04-17 13:18:30.201593302 +0200
 @@ -113,6 +113,9 @@
  
@@ -6819,7 +6852,7 @@
      }
      mp_reader_new_file_from_fd(reader, fd, true);
  }
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/runtime0.h	2020-04-17 13:54:02.122895691 +0200
+--- micropython-master-git/py/runtime0.h	2020-04-17 13:54:02.122895691 +0200
 +++ micropython-master-no_nlr/py/runtime0.h	2020-04-17 12:49:40.710516908 +0200
 @@ -156,4 +156,5 @@
      MP_BINARY_OP_IS_NOT,
@@ -6827,7 +6860,7 @@
  
 +
  #endif // MICROPY_INCLUDED_PY_RUNTIME0_H
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/runtime.c	2020-04-17 13:54:02.122895691 +0200
+--- micropython-master-git/py/runtime.c	2020-04-17 13:54:02.122895691 +0200
 +++ micropython-master-no_nlr/py/runtime.c	2020-04-17 13:46:53.920673623 +0200
 @@ -59,6 +59,8 @@
  };
@@ -7468,7 +7501,7 @@
 +mp_obj_t mp_raise_OSError_o(int errno_) {
 +    return mp_raise_o(mp_obj_new_exception_arg1(&mp_type_OSError, MP_OBJ_NEW_SMALL_INT(errno_)));
 +}
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/runtime.h	2020-04-17 13:54:02.122895691 +0200
+--- micropython-master-git/py/runtime.h	2020-04-17 13:54:02.122895691 +0200
 +++ micropython-master-no_nlr/py/runtime.h	2020-04-17 13:46:53.920673623 +0200
 @@ -78,14 +78,14 @@
  // extra printing method specifically for mp_obj_t's which are integral type
@@ -7553,7 +7586,7 @@
  
  #if MICROPY_BUILTIN_METHOD_CHECK_SELF_ARG
  #undef mp_check_self
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/runtime_utils.c	2020-04-17 09:19:09.284299403 +0200
+--- micropython-master-git/py/runtime_utils.c	2020-04-17 09:19:09.284299403 +0200
 +++ micropython-master-no_nlr/py/runtime_utils.c	2020-04-17 12:45:36.391619808 +0200
 @@ -28,25 +28,19 @@
  #include "py/runtime.h"
@@ -7591,7 +7624,7 @@
      }
 +    return ret;
  }
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/scope.c	2020-04-17 12:44:56.068131364 +0200
+--- micropython-master-git/py/scope.c	2020-04-17 12:44:56.068131364 +0200
 +++ micropython-master-no_nlr/py/scope.c	2020-04-17 12:45:36.391619808 +0200
 @@ -42,6 +42,9 @@
  
@@ -7634,7 +7667,7 @@
      for (mp_uint_t i = 0; i < scope->id_info_len; i++) {
          if (scope->id_info[i].qst == qst) {
              return &scope->id_info[i];
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/sequence.c	2020-04-17 13:54:02.122895691 +0200
+--- micropython-master-git/py/sequence.c	2020-04-17 13:54:02.122895691 +0200
 +++ micropython-master-no_nlr/py/sequence.c	2020-04-18 11:52:26.377522893 +0200
 @@ -45,7 +45,7 @@
  
@@ -7654,7 +7687,7 @@
  }
  
  mp_obj_t mp_seq_count_obj(const mp_obj_t *items, size_t len, mp_obj_t value) {
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/stackctrl.c	2020-04-17 12:44:56.070131339 +0200
+--- micropython-master-git/py/stackctrl.c	2020-04-17 12:44:56.070131339 +0200
 +++ micropython-master-no_nlr/py/stackctrl.c	2020-04-17 12:45:36.393619783 +0200
 @@ -48,10 +48,12 @@
      MP_STATE_THREAD(stack_limit) = limit;
@@ -7670,7 +7703,7 @@
  }
  
  #endif // MICROPY_STACK_CHECK
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/stackctrl.h	2020-04-17 09:19:09.284299403 +0200
+--- micropython-master-git/py/stackctrl.h	2020-04-17 09:19:09.284299403 +0200
 +++ micropython-master-no_nlr/py/stackctrl.h	2020-04-17 12:45:36.393619783 +0200
 @@ -35,13 +35,15 @@
  #if MICROPY_STACK_CHECK
@@ -7690,7 +7723,7 @@
  
  #endif
  
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/stream.c	2020-04-17 13:54:02.122895691 +0200
+--- micropython-master-git/py/stream.c	2020-04-17 13:54:02.122895691 +0200
 +++ micropython-master-no_nlr/py/stream.c	2020-04-17 13:03:05.127880230 +0200
 @@ -92,7 +92,8 @@
          || ((flags & MP_STREAM_OP_WRITE) && stream_p->write == NULL)
@@ -7832,7 +7865,7 @@
      }
  
      return mp_obj_new_int(res);
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/vm.c	2020-04-17 13:54:02.122895691 +0200
+--- micropython-master-git/py/vm.c	2020-04-17 13:54:02.122895691 +0200
 +++ micropython-master-no_nlr/py/vm.c	2020-04-17 12:52:23.846422372 +0200
 @@ -227,7 +227,21 @@
      // sees that it's possible for us to jump from the dispatch loop to the exception
@@ -8444,7 +8477,7 @@
                  FRAME_LEAVE();
                  return MP_VM_RETURN_EXCEPTION;
              }
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/py/vstr.c	2020-04-17 12:44:56.070131339 +0200
+--- micropython-master-git/py/vstr.c	2020-04-17 12:44:56.070131339 +0200
 +++ micropython-master-no_nlr/py/vstr.c	2020-04-17 12:45:36.395619758 +0200
 @@ -95,7 +95,8 @@
      if (vstr->fixed_buf) {
@@ -8516,7 +8549,7 @@
  }
  
  STATIC char *vstr_ins_blank_bytes(vstr_t *vstr, size_t byte_pos, size_t byte_len) {
---- git-ad7213d3c31bccb26a3f54f7492ccf4b0cc920f3/tests/run-tests	2020-04-17 13:54:02.126895637 +0200
+--- micropython-master-git/tests/run-tests	2020-04-17 13:54:02.126895637 +0200
 +++ micropython-master-no_nlr/tests/run-tests	2020-04-17 13:25:13.838243544 +0200
 @@ -49,7 +49,7 @@
      return bytes(''.join(cs), 'utf8')
